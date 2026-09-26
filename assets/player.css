@@ -144,6 +144,42 @@
   .p-controls { width: 100%; }
   .p-controls button { flex: 1; justify-content: center; }
 }
+/* Phones: the whole player fits one screen. The stage scrolls itself to the
+   newest item; rules become pills and the log shows the latest line. */
+@media (max-width: 620px) {
+  .player { height: calc(100svh - 16px); max-height: 900px; min-height: 560px; display: flex; flex-direction: column; margin-top: 32px; scroll-margin-top: 8px; }
+  .p-bar { padding: 10px 12px; gap: 8px; }
+  .p-title { flex: 1 1 100%; }
+  .p-title strong { font-size: 15px; }
+  .p-title span { display: none; }
+  .p-sim { font-size: 11px; padding: 2px 8px; }
+  .p-controls { width: auto; flex: 1; }
+  .p-controls button { min-height: 40px; padding: 0 10px; font-size: 14px; }
+  .conveyor { padding: 12px 6px 10px; flex: none; }
+  .node { width: 34px; height: 34px; }
+  .node svg { width: 16px; height: 16px; }
+  .conveyor .track, .conveyor .track-fill { top: 29px; }
+  .conveyor .packet { top: 22px; width: 13px; height: 13px; margin-left: -6.5px; }
+  .conveyor li { gap: 5px; }
+  .conveyor li span { font-size: 10px; white-space: nowrap; letter-spacing: -0.01em; }
+  .conveyor li[data-s="run"] span, .conveyor li[data-s="halt"] span { font-weight: 800; }
+  .p-body { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .stage { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 14px 14px 18px; scroll-behavior: smooth; }
+  .stage-head { margin-bottom: 10px; }
+  .stage-head h3 { font-size: 19px; }
+  .stage-head p { font-size: 12.5px; }
+  .side { flex: none; border-left: 0; border-top: 1px solid var(--line); padding: 10px 12px 12px; gap: 8px; }
+  .side h4 { display: none; }
+  .rules { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+  .rules li { display: flex; align-items: center; gap: 6px; padding: 4px 9px 4px 5px; border-radius: 999px; }
+  .rules small { display: none; }
+  .rules b { font-size: 11.5px; line-height: 1.2; }
+  .rules .dot { width: 14px; height: 14px; margin: 0; }
+  .rules .dot svg { width: 9px; height: 9px; }
+  .log { height: auto; max-height: none; padding: 7px 10px; font-size: 11.5px; line-height: 1.4; overflow: hidden; }
+  .log li { display: none; }
+  .log li:last-child { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
 }

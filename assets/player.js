@@ -130,6 +130,18 @@
       el.h.textContent = view.title;
       el.note.textContent = view.note || "";
       el.body.innerHTML = view.html;
+      // On small screens the stage scrolls inside the player: keep the newest item in view.
+      var stageBox = root.querySelector(".stage");
+      if (stageBox.scrollHeight > stageBox.clientHeight + 4) {
+        var fresh = el.body.querySelectorAll(".enter, .caught, .flagged, .caret");
+        var target = fresh.length ? fresh[fresh.length - 1] : null;
+        if (target) {
+          var top = target.getBoundingClientRect().top - stageBox.getBoundingClientRect().top + stageBox.scrollTop;
+          stageBox.scrollTop = Math.max(0, top - stageBox.clientHeight / 2 + target.offsetHeight / 2);
+        } else {
+          stageBox.scrollTop = 0;
+        }
+      }
 
       el.back.disabled = k < 0;
       el.step.disabled = k >= beats.length - 1;
@@ -155,6 +167,10 @@
       var b = e.target.closest("button[data-a]");
       if (!b) return;
       var a = b.getAttribute("data-a");
+      if ((a === "play" || a === "replay") && window.matchMedia("(max-width: 620px)").matches) {
+        var r = root.getBoundingClientRect();
+        if (r.top < -4 || r.bottom > window.innerHeight + 4) root.scrollIntoView({ block: "start", behavior: "smooth" });
+      }
       if (a === "play") {
         if (playing) return setPlaying(false);
         if (k >= beats.length - 1) { k = -1; paint(false); }
