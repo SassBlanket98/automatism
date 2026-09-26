@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Client updates, drafted</title>
-<meta name="description" content="A sample of a tool that drafts weekly client updates from an agency's Jira, Linear or ClickUp board. A person checks and sends each one. The tool isn't built yet.">
+<meta name="description" content="Five samples of a tool that drafts weekly client updates from an agency's Jira, Linear or ClickUp board. A person checks and sends each one. The tool isn't built yet.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap" rel="stylesheet">
@@ -40,6 +40,7 @@ body { margin: 0; background: var(--ground); color: var(--ink); font-family: var
 :focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
 .wrap { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
 @media (min-width: 720px) { .wrap { padding: 0 40px; } }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 28px 0 0; font-size: 15px; }
 .brand { font-weight: 800; font-size: 20px; letter-spacing: -0.01em; }
@@ -52,22 +53,26 @@ h1 { margin: 0; font-size: clamp(40px, 6.4vw, 84px); line-height: 0.98; font-wei
 .desk {
   margin-top: 56px; background: var(--panel); border-radius: 14px; overflow: hidden;
   box-shadow: 0 40px 80px -50px rgba(16, 35, 47, 0.6);
-  display: grid; grid-template-columns: 220px minmax(0, 1fr) 360px;
+  display: grid; grid-template-columns: 250px minmax(0, 1fr) 340px;
 }
-.rail { background: var(--rail); color: var(--rail-ink); padding: 22px 16px; font-size: 15px; }
-.rail .studio { font-weight: 700; color: #fff; font-size: 16px; margin-bottom: 18px; }
-.rail .label { font-size: 12.5px; color: var(--rail-muted); margin-bottom: 6px; }
+.rail { background: var(--rail); color: var(--rail-ink); padding: 22px 12px; font-size: 15px; }
+.rail .label { font-size: 12.5px; color: var(--rail-muted); margin: 0 6px 10px; }
 .rail ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-.rail li { border-radius: 8px; padding: 10px 12px; display: flex; justify-content: space-between; gap: 8px; }
-.rail li.on { background: var(--rail-on); color: #fff; }
-.count { background: var(--flag); color: #10232f; font-weight: 700; font-size: 12px; border-radius: 9px; padding: 1px 7px; align-self: center; }
-.sent { color: var(--rail-muted); font-size: 13px; }
+.rail button {
+  width: 100%; text-align: left; font: inherit; color: inherit; background: none; border: 0; cursor: pointer;
+  border-radius: 8px; padding: 10px 12px; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; min-height: 44px;
+}
+.rail button:hover { background: rgba(255, 255, 255, 0.05); }
+.rail button[aria-pressed="true"] { background: var(--rail-on); color: #fff; }
+.rail .name { font-weight: 600; }
+.rail .who { grid-column: 1; font-size: 12.5px; color: var(--rail-muted); }
+.count { grid-row: 1 / span 2; grid-column: 2; align-self: center; background: var(--flag); color: #10232f; font-weight: 700; font-size: 12px; border-radius: 9px; padding: 1px 7px; }
 
 .draft { padding: 28px 40px 36px; min-width: 0; }
+.case { display: inline-block; font-size: 13px; font-weight: 700; color: var(--teal); margin-bottom: 12px; }
 .draft-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
 .draft-head small { display: block; font-size: 13px; color: var(--muted); }
-.draft-head .subject { font-size: 20px; margin: 2px 0 0; letter-spacing: 0; }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.draft-head .subject { font-size: 20px; margin: 2px 0 0; }
 .draft-head .to { font-size: 14px; color: var(--muted); }
 .email { font-family: var(--serif); font-size: 18px; line-height: 1.65; padding-top: 22px; display: flex; flex-direction: column; gap: 12px; color: var(--ink); }
 .email p { margin: 0; }
@@ -98,7 +103,11 @@ h1 { margin: 0; font-size: clamp(40px, 6.4vw, 84px); line-height: 0.98; font-wei
 
 @media (max-width: 1100px) {
   .desk { grid-template-columns: minmax(0, 1fr) 320px; }
-  .rail { display: none; }
+  .rail { grid-column: 1 / -1; padding: 12px; }
+  .rail .label { display: none; }
+  .rail ul { flex-direction: row; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--rail-muted) transparent; padding-bottom: 4px; }
+  .rail li { flex-shrink: 0; }
+  .rail button { width: auto; }
 }
 @media (max-width: 820px) {
   .desk { grid-template-columns: minmax(0, 1fr); }
@@ -118,72 +127,49 @@ h1 { margin: 0; font-size: clamp(40px, 6.4vw, 84px); line-height: 0.98; font-wei
   <main>
 
   <section class="hero">
-    <h1>The client update is drafted. You check two things and send it.</h1>
-    <p class="lede">The idea is a tool that reads your Jira, Linear or ClickUp board and writes the weekly update for your client. It would leave internal notes out and flag the lines a person should look at. Nothing would go out until someone on your team sends it.</p>
+    <h1>The client update is drafted. You check it and send it.</h1>
+    <p class="lede">The idea is a tool that reads your Jira, Linear or ClickUp board and drafts the regular update for your client. It would leave internal notes out and flag the lines a person should look at. Nothing would go out until someone on your team sends it. Pick a project below to see five sample updates.</p>
   </section>
 
   <section class="desk" aria-label="Sample review screen">
     <div class="rail">
-      <div class="studio">Northline Studio</div>
-      <div class="label">Updates due this week</div>
-      <ul>
-        <li class="on"><span>Brightsmile</span><span class="count" aria-label="2 things to check">2</span></li>
-        <li><span>Harrow &amp; Vine</span><span class="count" aria-label="1 thing to check">1</span></li>
-        <li><span>Riverside Food Bank</span><span class="sent">Sent</span></li>
-      </ul>
+      <div class="label">Sample projects</div>
+      <ul id="projects"></ul>
     </div>
 
     <article class="draft">
+      <p class="sr" id="status" aria-live="polite"></p>
+      <span class="case" id="case"></span>
       <div class="draft-head">
-        <div><small>7 tickets reviewed, 6 used, sprint 14</small><h2 class="subject">Booking site: week of 21 September</h2></div>
-        <div class="to">To Lerato, Brightsmile Dental Group</div>
+        <div><small id="source"></small><h2 class="subject" id="subject"></h2></div>
+        <div class="to" id="to"></div>
       </div>
-      <div class="email">
-        <p>Hi Lerato,</p>
-        <p>Here's where the booking site stands this week.</p>
-        <h3>Done</h3>
-        <p>Saturday bookings work again. A time zone mismatch with the practice system was blocking them. It's fixed, and we've added a check so it can't come back quietly.</p>
-        <p>Your team can now edit practitioner profiles in the CMS.</p>
-        <h3>In progress</h3>
-        <p>Page speed on phones. Large photo files are the main cause, and we're working on it.</p>
-        <h3>Waiting on you</h3>
-        <p class="flagged" aria-describedby="chk1"><span class="sr">Flagged: </span>SMS reminders are waiting on the sender ID approval. Could you check whether it has come through?</p>
-        <p>The home page copy from your marketing team.</p>
-        <h3>Your question from Tuesday</h3>
-        <p class="flagged" aria-describedby="chk2"><span class="sr">Flagged: </span>Adding a medical aid field to the booking form is outside the current scope. We'll send you a quote for it.</p>
-        <p>Thanks,<br>Naledi</p>
-      </div>
+      <div class="email" id="email"></div>
     </article>
 
     <aside class="checks" aria-label="Things to check before sending">
-      <h2>2 things to check</h2>
-      <div class="check">
-        <label><input type="checkbox" aria-describedby="chk1">Asked three times already</label>
-        <p id="chk1">BSD-219 notes the client was asked three times. Is the tone right?</p>
-      </div>
-      <div class="check">
-        <label><input type="checkbox" aria-describedby="chk2">Offers a quote for new scope</label>
-        <p id="chk2">BSD-227 isn't in the SOW. Confirm it's a change request before promising a quote.</p>
-      </div>
+      <h2 id="check-title"></h2>
+      <div id="check-list" style="display: flex; flex-direction: column; gap: 14px"></div>
       <h3>Left out of the draft</h3>
-      <p class="meta">BSD-221 Refactor availability cache (internal work)<br>5 internal comments, including "their photos are 8MB each lol"</p>
+      <p class="meta" id="left-out"></p>
       <h3>Built from</h3>
-      <p class="meta">BSD-212, 215, 219, 224, 226, 227</p>
+      <p class="meta" id="built-from"></p>
       <div class="spacer"></div>
       <button class="copy" type="button" disabled>Copy to my email</button>
       <p class="copy-note">You send it. The tool never does.</p>
     </aside>
   </section>
-  <p class="caption">A mock-up with a made-up agency and client. The checkboxes work; the button doesn't.</p>
+  <p class="caption">A mock-up with made-up agencies and clients. The project list and checkboxes work; the button doesn't.</p>
+  <noscript><p class="caption">The project switcher needs JavaScript.</p></noscript>
 
   <section class="points">
     <div>
       <h2>Internal notes stay internal</h2>
-      <p>Comments like "asked 3x" or "lol" would shape the draft, but the words wouldn't reach your client.</p>
+      <p>Comments like "asked 3x" or "again." would shape the draft, but the words wouldn't reach your client.</p>
     </div>
     <div>
       <h2>Promises get flagged</h2>
-      <p>Dates, quotes, scope and awkward wording would be highlighted, so the person sending knows what to read twice.</p>
+      <p>Dates, quotes, hours, scope and awkward wording would be highlighted, so the person sending knows what to read twice.</p>
     </div>
     <div>
       <h2>Your tracker stays as it is</h2>
@@ -194,7 +180,7 @@ h1 { margin: 0; font-size: clamp(40px, 6.4vw, 84px); line-height: 0.98; font-wei
   <section class="close">
     <div>
       <div class="kicker">About this page</div>
-      <p>The agency, client, tickets and screen are made up. The email was written by hand to show what the tool should produce. The tool hasn't been built yet.</p>
+      <p>The agencies, clients, tickets and screen are made up. The emails were written by hand to show what the tool should produce. The tool hasn't been built yet.</p>
     </div>
     <div>
       <h2>How does your agency write these today?</h2>
@@ -203,5 +189,185 @@ h1 { margin: 0; font-size: clamp(40px, 6.4vw, 84px); line-height: 0.98; font-wei
   </section>
   </main>
 </div>
+<script>
+// Each project: one made-up week. Flag numbers in the email match the checks list.
+var PROJECTS = [
+  {
+    name: "Brightsmile", who: "Northline Studio on Jira",
+    kase: "Blocked on the client, plus a scope question",
+    source: "7 tickets reviewed, 6 used, sprint 14",
+    subject: "Booking site: week of 21 September",
+    to: "To Lerato, Brightsmile Dental Group",
+    email: [
+      ["p", "Hi Lerato,"],
+      ["p", "Here's where the booking site stands this week."],
+      ["h", "Done"],
+      ["p", "Saturday bookings work again. A time zone mismatch with the practice system was blocking them. It's fixed, and we've added a check so it can't come back quietly."],
+      ["p", "Your team can now edit practitioner profiles in the CMS."],
+      ["h", "In progress"],
+      ["p", "Page speed on phones. Large photo files are the main cause, and we're working on it."],
+      ["h", "Waiting on you"],
+      ["f1", "SMS reminders are waiting on the sender ID approval. Could you check whether it has come through?"],
+      ["p", "The home page copy from your marketing team."],
+      ["h", "Your question from Tuesday"],
+      ["f2", "Adding a medical aid field to the booking form is outside the current scope. We'll send you a quote for it."],
+      ["p", "Thanks,<br>Naledi"]
+    ],
+    checks: [
+      ["Asked three times already", "BSD-219 notes the client was asked three times. Is the tone right?"],
+      ["Offers a quote for new scope", "BSD-227 isn't in the SOW. Confirm it's a change request before promising a quote."]
+    ],
+    leftOut: "BSD-221 Refactor availability cache (internal work)<br>5 internal comments, including \"their photos are 8MB each lol\"",
+    builtFrom: "BSD-212, 215, 219, 224, 226, 227"
+  },
+  {
+    name: "Harrow & Vine", who: "Fieldwork Digital on Linear",
+    kase: "A supplier problem the client has to chase",
+    source: "6 issues reviewed, 5 used, cycle 31",
+    subject: "Store update: cycle ending 25 September",
+    to: "To Tom, Harrow & Vine",
+    email: [
+      ["p", "Hi Tom,"],
+      ["p", "A short one this fortnight."],
+      ["h", "Done"],
+      ["p", "Apple Pay works at checkout again. The age check was getting in its way."],
+      ["h", "In progress"],
+      ["p", "Moving your product reviews across. About 60% are in, and we're fixing duplicates on products that come in several sizes."],
+      ["p", "The subscription box page is built and in review."],
+      ["h", "Needs a decision"],
+      ["f1", "The nightly stock sync stopped because the warehouse changed the layout of its stock file. Could you ask them to keep the old column names, or send us the new layout so we can match it?"],
+      ["h", "Taken off our list"],
+      ["p", "Abandoned-cart emails, since your team is handling those now."],
+      ["p", "Cheers,<br>Sam"]
+    ],
+    checks: [
+      ["Mentions the client's supplier", "HV-97's note blames the warehouse. Keep the wording neutral."]
+    ],
+    leftOut: "HV-95 Theme upgrade (internal work)<br>4 internal comments, including \"warehouse renamed columns without telling anyone. again.\"",
+    builtFrom: "HV-88, 91, 93, 97, 98"
+  },
+  {
+    name: "Riverside Food Bank", who: "Tidewater Web on ClickUp",
+    kase: "Extra hours that need sign-off",
+    source: "5 tasks reviewed, 4 used, September",
+    subject: "Website: September update",
+    to: "To Priya, Riverside Food Bank",
+    email: [
+      ["p", "Hi Priya,"],
+      ["p", "Here's the September round-up."],
+      ["h", "Done"],
+      ["p", "Donors can now choose to give monthly on the donation form."],
+      ["h", "In progress"],
+      ["p", "Volunteer sign-ups going straight into your Google Sheet. Some merged cells in the sheet are getting in the way, and we'll suggest a fix."],
+      ["p", "Accessibility fixes from the audit: 14 of 22 done."],
+      ["h", "Needs your sign-off"],
+      ["f1", "The events calendar plugin doesn't work with your theme. We can build a simple calendar instead, which adds hours. We'll send an estimate for you to approve."],
+      ["p", "Best,<br>Jordan"]
+    ],
+    checks: [
+      ["Extra hours need approval", "RFB-21 needs sign-off. Have the estimate ready before this goes out."]
+    ],
+    leftOut: "RFB-22 Rotate staging passwords (internal work)<br>2 internal comments, including \"sheet has merged cells, API hates it\"",
+    builtFrom: "RFB-14, 17, 18, 21"
+  },
+  {
+    name: "Pace running app", who: "Quarry Labs on Jira",
+    kase: "Bad news: the release date slips",
+    source: "5 tickets reviewed, 4 used, release 2.3",
+    subject: "App release 2.3: launch date moves",
+    to: "To Ayesha, Pace",
+    email: [
+      ["p", "Hi Ayesha,"],
+      ["f1", "The 2.3 release won't make 3 October. Here's why, and what happens next."],
+      ["h", "What happened"],
+      ["p", "Apple's review turned down the build because the app asks for location before explaining why it needs it."],
+      ["h", "What we're doing"],
+      ["f2", "We're adding a short screen that explains location use before the permission prompt. We can resubmit on Monday at the earliest, and Apple's review takes 1 to 3 days after that, so 3 October is out."],
+      ["p", "We'll confirm the new launch date once Apple approves the build."],
+      ["h", "Also in this release"],
+      ["p", "Route sharing is done. We've also found a crash on some Android phones when the GPS signal drops, and a fix is in review."],
+      ["p", "Thanks,<br>Chris"]
+    ],
+    checks: [
+      ["Leads with a missed date", "The launch slips. Check the tone, and whether this deserves a call first."],
+      ["Gives a resubmission day", "PACE-301's note says Monday at the earliest and 1 to 3 days for review. Confirm the team can hit Monday."]
+    ],
+    leftOut: "PACE-310 Migrate CI to new runners (internal work)<br>3 internal comments, including \"launch on 3 Oct not happening\"",
+    builtFrom: "PACE-298, 301, 305, 307"
+  },
+  {
+    name: "Oakline Architects", who: "Brightwork Studio on ClickUp",
+    kase: "Monthly retainer report with hours used",
+    source: "5 tasks reviewed, 4 used, September retainer",
+    subject: "Website support: September",
+    to: "To Grace, Oakline Architects",
+    email: [
+      ["p", "Hi Grace,"],
+      ["f1", "We used 8 of your 10 support hours this month. Here's what they went on."],
+      ["h", "Done"],
+      ["p", "The contact form should get far less spam now."],
+      ["p", "Three new project case studies are live."],
+      ["p", "The team page shows your new hires."],
+      ["h", "In progress"],
+      ["f1", "The project gallery is slow because it loads all 140 images at once. We're fixing that, and the remaining work will come out of October's hours."],
+      ["h", "One small ask"],
+      ["f2", "Next time, could you send photos as separate files rather than inside a Word document? It saves us time, and your hours."],
+      ["p", "Thanks,<br>Lindiwe"]
+    ],
+    checks: [
+      ["Hours used and carried over", "8 of 10 comes from ClickUp's time tracking, and the gallery work moves into October. Confirm both against the timesheet and the retainer."],
+      ["Asks the client to change a habit", "OAK-42's note says \"again\". Keep the ask friendly."]
+    ],
+    leftOut: "OAK-46 Refactor gallery template (internal, not billed)<br>3 internal comments, including \"client sent photos in a Word doc again\"",
+    builtFrom: "OAK-41, 42, 44, 45"
+  }
+];
+
+(function () {
+  var list = document.getElementById("projects");
+  var buttons = [];
+
+  function show(i, announce) {
+    var p = PROJECTS[i];
+    buttons.forEach(function (b, j) { b.setAttribute("aria-pressed", j === i ? "true" : "false"); });
+    document.getElementById("case").textContent = p.kase;
+    document.getElementById("source").textContent = p.source;
+    document.getElementById("subject").textContent = p.subject;
+    document.getElementById("to").textContent = p.to;
+    document.getElementById("email").innerHTML = p.email.map(function (row) {
+      var kind = row[0], text = row[1];
+      if (kind === "h") return "<h3>" + text + "</h3>";
+      if (kind === "p") return "<p>" + text + "</p>";
+      var n = kind.slice(1);
+      return '<p class="flagged" aria-describedby="chk' + n + '"><span class="sr">Flag ' + n + ': </span>' + text + "</p>";
+    }).join("");
+    var c = p.checks.length;
+    document.getElementById("check-title").textContent = c + (c === 1 ? " thing" : " things") + " to check";
+    document.getElementById("check-list").innerHTML = p.checks.map(function (ch, j) {
+      return '<div class="check"><label><input type="checkbox" aria-describedby="chk' + (j + 1) + '">' + ch[0] +
+        '</label><p id="chk' + (j + 1) + '">' + ch[1] + "</p></div>";
+    }).join("");
+    document.getElementById("left-out").innerHTML = p.leftOut;
+    document.getElementById("built-from").textContent = p.builtFrom;
+    if (announce) document.getElementById("status").textContent = "Showing " + p.name + ", " + c + " to check";
+  }
+
+  PROJECTS.forEach(function (p, i) {
+    var li = document.createElement("li");
+    var b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = '<span class="name"></span><span class="count"></span><span class="who"></span>';
+    b.querySelector(".name").textContent = p.name;
+    b.querySelector(".who").textContent = p.who;
+    b.querySelector(".count").textContent = p.checks.length;
+    b.querySelector(".count").setAttribute("aria-label", p.checks.length + " to check");
+    b.addEventListener("click", function () { show(i, true); });
+    li.appendChild(b);
+    list.appendChild(li);
+    buttons.push(b);
+  });
+  show(0);
+})();
+</script>
 </body>
 </html>
