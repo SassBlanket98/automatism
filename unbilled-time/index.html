@@ -11,6 +11,12 @@
 <link rel="stylesheet" href="../assets/site.css">
 <link rel="stylesheet" href="../assets/player.css">
 <style>
+.film { margin: 40px auto 0; max-width: 540px; }
+.film video { display: block; width: 100%; aspect-ratio: 4 / 5; border-radius: 16px; background: #E4E5E1; box-shadow: 0 40px 80px -50px rgba(16, 35, 47, 0.6); }
+.film figcaption { margin-top: 12px; font-size: 14px; color: var(--muted); text-align: center; }
+.sub-h { margin: 88px 0 0; font-size: clamp(26px, 3vw, 34px); letter-spacing: -0.02em; }
+</style>
+<style>
   .ledger-intro { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
   .ledger { display: grid; gap: 8px; }
   .ledger-row { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 8px 12px; align-items: baseline; padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
@@ -63,6 +69,12 @@
     </section>
 
     <h2 class="sr">Unbilled time pipeline replay</h2>
+    <figure class="film">
+      <video src="../media/unbilled-time.mp4" poster="../media/unbilled-time-poster.jpg" autoplay muted loop playsinline controls preload="metadata" aria-label="45 second film: a developer's week of commits, tickets and meetings is checked against the timesheet, 4.50 hours of unlogged work are found, a double-billed hour is blocked, and the developer approves 3.75 hours"></video>
+      <figcaption>45 seconds, no sound needed. Scripted demo on made-up data.</figcaption>
+    </figure>
+
+    <h2 class="sub-h">Step through it yourself</h2>
     <div class="player" id="player"></div>
 
     <section class="after">
