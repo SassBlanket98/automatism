@@ -3,371 +3,105 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Client updates, drafted</title>
-<meta name="description" content="Five samples of a tool that drafts weekly client updates from an agency's Jira, Linear or ClickUp board. A person checks and sends each one. The tool isn't built yet.">
+<title>Automatism: AI workflows for agencies</title>
+<meta name="description" content="Small AI workflows for web and software agencies. Each reads the tools you already use, does one job, follows strict rules and waits for a person to approve. Watch scripted demos; the tools aren't built yet.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
 <style>
-:root {
-  --ground: #e8eef4;
-  --ink: #10232f;
-  --body: #26394a;
-  --muted: #4d6273;
-  --panel: #ffffff;
-  --side: #f4f7fa;
-  --line: #e1e7ed;
-  --rail: #10232f;
-  --rail-ink: #cfdbe4;
-  --rail-muted: #8fa6b6;
-  --rail-on: #1f3a4b;
-  --teal: #0b6e69;
-  --flag: #f28c38;
-  --flag-bg: #fff1e3;
-  --sans: "Schibsted Grotesk", system-ui, sans-serif;
-  --serif: "Literata", Georgia, serif;
+.hero { padding: 72px 0 0; max-width: 1000px; }
+.jobs { margin: 72px 0 0; padding: 0; list-style: none; border-top: 2px solid var(--ink); }
+.job { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr) 190px; gap: 16px 40px; align-items: center; padding: 30px 0; border-bottom: 1px solid var(--line); }
+.job h2 { margin: 0; font-size: clamp(26px, 3vw, 34px); font-weight: 800; letter-spacing: -0.025em; line-height: 1.05; }
+.job .io { margin: 8px 0 0; font-family: var(--serif); font-size: 17px; line-height: 1.5; color: var(--body); }
+.flow { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; flex-wrap: wrap; gap: 6px 0; font-size: 13.5px; font-weight: 600; color: var(--muted); }
+.flow li { display: flex; align-items: center; }
+.flow li + li::before { content: ""; width: 18px; height: 2px; background: var(--line); margin: 0 6px; }
+.flow .g { color: var(--teal); }
+.job .go { justify-self: end; font: 700 16px var(--sans); text-decoration: none; border-radius: 10px; min-height: 48px; padding: 0 18px; display: inline-flex; align-items: center; gap: 8px; background: var(--teal); color: #fff; }
+.job .go:hover { filter: brightness(0.92); }
+.job .go svg { width: 14px; height: 14px; }
+.job .soon { justify-self: end; font-size: 15px; font-weight: 600; color: var(--muted); border: 2px dashed var(--line); border-radius: 10px; min-height: 48px; padding: 0 16px; display: inline-flex; align-items: center; }
+.rules { margin-top: 104px; display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 56px; }
+.rules h2 { margin: 0; font-size: clamp(32px, 3.6vw, 44px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; }
+.rules > div > p { font-family: var(--serif); font-size: 18px; line-height: 1.55; color: var(--body); margin: 14px 0 0; }
+.rules ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 40px; }
+.rules li { display: grid; grid-template-columns: 34px 1fr; gap: 4px 14px; }
+.rules .ic { grid-row: 1 / span 2; width: 34px; height: 34px; border-radius: 50%; background: var(--teal-soft); color: var(--teal); display: flex; align-items: center; justify-content: center; }
+.rules .ic svg { width: 18px; height: 18px; }
+.rules b { font-size: 19px; line-height: 1.25; }
+.rules span.d { font-family: var(--serif); font-size: 16.5px; line-height: 1.5; color: var(--body); }
+.top .note { color: var(--muted); text-align: right; }
+@media (max-width: 980px) {
+  .job { grid-template-columns: minmax(0, 1fr); }
+  .job .go, .job .soon { justify-self: start; }
+  .rules { grid-template-columns: minmax(0, 1fr); gap: 32px; }
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --ground: #0d1a23; --ink: #e6edf2; --body: #c3d0da; --muted: #93a6b5;
-    --panel: #15242f; --side: #192b37; --line: #263a48; --rail: #081219;
-    --rail-on: #1b3140; --teal: #3fb3aa; --flag-bg: #3a2718;
-  }
-}
-*, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--sans); font-size: 17px; line-height: 1.45; }
-:focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
-.wrap { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
-@media (min-width: 720px) { .wrap { padding: 0 40px; } }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-
-.top { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 28px 0 0; font-size: 15px; }
-.brand { font-weight: 800; font-size: 20px; letter-spacing: -0.01em; }
-.top span:last-child { color: var(--muted); text-align: right; }
-
-.hero { padding: 72px 0 0; max-width: 980px; }
-h1 { margin: 0; font-size: clamp(40px, 6.4vw, 84px); line-height: 0.98; font-weight: 800; letter-spacing: -0.035em; }
-.lede { margin: 26px 0 0; font-family: var(--serif); font-size: clamp(19px, 2vw, 22px); line-height: 1.55; max-width: 38em; color: var(--body); }
-
-.desk {
-  margin-top: 56px; background: var(--panel); border-radius: 14px; overflow: hidden;
-  box-shadow: 0 40px 80px -50px rgba(16, 35, 47, 0.6);
-  display: grid; grid-template-columns: 250px minmax(0, 1fr) 340px;
-}
-.rail { background: var(--rail); color: var(--rail-ink); padding: 22px 12px; font-size: 15px; }
-.rail .label { font-size: 12.5px; color: var(--rail-muted); margin: 0 6px 10px; }
-.rail ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
-.rail button {
-  width: 100%; text-align: left; font: inherit; color: inherit; background: none; border: 0; cursor: pointer;
-  border-radius: 8px; padding: 10px 12px; display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; min-height: 44px;
-}
-.rail button:hover { background: rgba(255, 255, 255, 0.05); }
-.rail button[aria-pressed="true"] { background: var(--rail-on); color: #fff; }
-.rail .name { font-weight: 600; }
-.rail .who { grid-column: 1; font-size: 12.5px; color: var(--rail-muted); }
-.count { grid-row: 1 / span 2; grid-column: 2; align-self: center; background: var(--flag); color: #10232f; font-weight: 700; font-size: 12px; border-radius: 9px; padding: 1px 7px; }
-
-.draft { padding: 28px 40px 36px; min-width: 0; }
-.case { display: inline-block; font-size: 13px; font-weight: 700; color: var(--teal); margin-bottom: 12px; }
-.draft-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
-.draft-head small { display: block; font-size: 13px; color: var(--muted); }
-.draft-head .subject { font-size: 20px; margin: 2px 0 0; }
-.draft-head .to { font-size: 14px; color: var(--muted); }
-.email { font-family: var(--serif); font-size: 18px; line-height: 1.65; padding-top: 22px; display: flex; flex-direction: column; gap: 12px; color: var(--ink); }
-.email p { margin: 0; }
-.email h3 { font-family: var(--sans); font-size: 13px; font-weight: 700; color: var(--muted); margin: 6px 0 0; }
-.flagged { background: var(--flag-bg); border-radius: 6px; padding: 6px 10px; margin: 0 -10px; outline: 2px solid var(--flag); }
-
-.checks { background: var(--side); border-left: 1px solid var(--line); padding: 28px 24px; display: flex; flex-direction: column; gap: 14px; }
-.checks h2 { font-size: 18px; margin: 0; }
-.check { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
-.check label { display: flex; gap: 10px; align-items: flex-start; font-size: 15.5px; font-weight: 600; line-height: 1.35; cursor: pointer; }
-.check input { width: 20px; height: 20px; margin: 1px 0 0; flex-shrink: 0; accent-color: var(--teal); }
-.check p { font-size: 14px; color: var(--muted); margin: 8px 0 0 30px; line-height: 1.45; }
-.checks h3 { font-size: 14px; margin: 10px 0 0; }
-.checks .meta { font-size: 14px; color: var(--muted); line-height: 1.55; margin: 0; }
-.spacer { flex-grow: 1; }
-.copy { font: 700 16px var(--sans); background: transparent; color: var(--muted); border: 2px dashed var(--muted); border-radius: 10px; min-height: 52px; }
-.copy-note { font-size: 13px; color: var(--muted); text-align: center; margin: 0; }
-.caption { font-size: 14px; color: var(--muted); margin: 12px 0 0; }
-
-.points { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; padding: 96px 0 0; }
-.points h2 { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; margin: 0; }
-.points p { font-family: var(--serif); font-size: 18px; line-height: 1.55; color: var(--body); margin: 10px 0 0; }
-
-.close { margin-top: 104px; border-top: 2px solid var(--ink); padding: 40px 0 72px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 80px; }
-.close .kicker { font-size: 15px; font-weight: 700; color: var(--teal); }
-.close p { font-family: var(--serif); font-size: 20px; line-height: 1.55; margin: 10px 0 0; color: var(--body); }
-.close h2 { font-size: clamp(30px, 3.4vw, 38px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin: 0; }
-
-@media (max-width: 1100px) {
-  .desk { grid-template-columns: minmax(0, 1fr) 320px; }
-  .rail { grid-column: 1 / -1; padding: 12px; }
-  .rail .label { display: none; }
-  .rail ul { flex-direction: row; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--rail-muted) transparent; padding-bottom: 4px; }
-  .rail li { flex-shrink: 0; }
-  .rail button { width: auto; }
-}
-@media (max-width: 820px) {
-  .desk { grid-template-columns: minmax(0, 1fr); }
-  .checks { border-left: 0; border-top: 1px solid var(--line); }
-  .draft { padding: 22px 18px 28px; }
-  .points, .close { grid-template-columns: minmax(0, 1fr); gap: 36px; }
+@media (max-width: 620px) {
+  .rules ul { grid-template-columns: minmax(0, 1fr); }
   .hero { padding-top: 48px; }
-}
-@media (max-width: 480px) {
-  .top span:last-child { font-size: 13px; }
+  .top .note { font-size: 13px; }
 }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header class="top"><span class="brand">Automatism</span><span>A sample page. The tool isn't built yet.</span></header>
+  <header class="top"><a class="brand" href="./">Automatism</a><span class="note">Demos are scripted. The tools aren't built yet.</span></header>
   <main>
+    <section class="hero">
+      <h1>Small AI workflows that fit how your agency already works.</h1>
+      <p class="lede">Each one reads the tools you already use, does one job, follows strict rules and stops for a person to approve. Watch a demo to see the whole run: what goes in, every step in between, and what comes out.</p>
+    </section>
 
-  <section class="hero">
-    <h1>The client update is drafted. You check it and send it.</h1>
-    <p class="lede">The idea is a tool that reads your Jira, Linear or ClickUp board and drafts the regular update for your client. It would leave internal notes out and flag the lines a person should look at. Nothing would go out until someone on your team sends it. Pick a project below to see five sample updates.</p>
-  </section>
+    <ul class="jobs">
+      <li class="job">
+        <div><h2>Client updates</h2><p class="io">Your Jira, Linear or ClickUp board in. A client-ready update out, with internal notes kept back.</p></div>
+        <ol class="flow" aria-label="Steps"><li>Collect</li><li>Clean</li><li>Classify</li><li>Draft</li><li class="g">Guardrails</li><li class="g">Review</li></ol>
+        <a class="go" href="client-updates/">Watch the demo <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg></a>
+      </li>
+      <li class="job">
+        <div><h2>Unbilled time</h2><p class="io">A week of commits, tickets and meetings in. The hours nobody logged out, as entries a developer approves.</p></div>
+        <ol class="flow" aria-label="Steps"><li>Collect</li><li>Match</li><li>Find gaps</li><li>Suggest</li><li class="g">Guardrails</li><li class="g">Review</li><li>Log</li></ol>
+        <a class="go" href="unbilled-time/">Watch the demo <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg></a>
+      </li>
+      <li class="job">
+        <div><h2>Release notes</h2><p class="io">Merged work in. Release notes your client can read out, with every line tied to a change.</p></div>
+        <ol class="flow" aria-label="Steps"><li>Collect</li><li>Group</li><li>Draft</li><li class="g">Guardrails</li><li class="g">Review</li></ol>
+        <span class="soon">Demo coming</span>
+      </li>
+      <li class="job">
+        <div><h2>Client requests</h2><p class="io">Client emails and chat in. Tidy tickets out, with anything outside the agreed scope flagged.</p></div>
+        <ol class="flow" aria-label="Steps"><li>Collect</li><li>Extract</li><li>Check scope</li><li>Draft tickets</li><li class="g">Guardrails</li><li class="g">Review</li></ol>
+        <span class="soon">Demo coming</span>
+      </li>
+    </ul>
 
-  <section class="desk" aria-label="Sample review screen">
-    <div class="rail">
-      <div class="label">Sample projects</div>
-      <ul id="projects"></ul>
-    </div>
-
-    <article class="draft">
-      <p class="sr" id="status" aria-live="polite"></p>
-      <span class="case" id="case"></span>
-      <div class="draft-head">
-        <div><small id="source"></small><h2 class="subject" id="subject"></h2></div>
-        <div class="to" id="to"></div>
+    <section class="rules">
+      <div>
+        <h2>The same rules on every workflow</h2>
+        <p>Each workflow is built around your agency's tools and habits. These rules don't change.</p>
       </div>
-      <div class="email" id="email"></div>
-    </article>
+      <ul>
+        <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span><b>Every output traced to a source</b><span class="d">Each factual line, entry or ticket links to the commit, message or ticket it came from. Anything without a source is blocked.</span></li>
+        <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span><b>Only allowed actions</b><span class="d">A workflow can only do the few things it's set up for, like reading a board and writing a draft. Anything else is refused and logged.</span></li>
+        <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><b>Internal data stays in</b><span class="d">Internal comments, private calendar events and personal details are kept out of anything that leaves your agency.</span></li>
+        <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.8-3.6 3.4-5.5 6.5-5.5 1.6 0 3 .5 4.1 1.4"/><path d="M15 18.5l2 2 4-4.5"/></svg></span><b>A person approves before anything leaves</b><span class="d">Someone who understands the work reads the output and approves it. Nothing reaches a client, a ticket or a timesheet before that.</span></li>
+      </ul>
+    </section>
 
-    <aside class="checks" aria-label="Things to check before sending">
-      <h2 id="check-title"></h2>
-      <div id="check-list" style="display: flex; flex-direction: column; gap: 14px"></div>
-      <h3>Left out of the draft</h3>
-      <p class="meta" id="left-out"></p>
-      <h3>Built from</h3>
-      <p class="meta" id="built-from"></p>
-      <div class="spacer"></div>
-      <button class="copy" type="button" disabled>Copy to my email</button>
-      <p class="copy-note">You send it. The tool never does.</p>
-    </aside>
-  </section>
-  <p class="caption">A mock-up with made-up agencies and clients. The project list and checkboxes work; the button doesn't.</p>
-  <noscript><p class="caption">The project switcher needs JavaScript.</p></noscript>
-
-  <section class="points">
-    <div>
-      <h2>Internal notes stay internal</h2>
-      <p>Comments like "asked 3x" or "again." would shape the draft, but the words wouldn't reach your client.</p>
-    </div>
-    <div>
-      <h2>Promises get flagged</h2>
-      <p>Dates, quotes, hours, scope and awkward wording would be highlighted, so the person sending knows what to read twice.</p>
-    </div>
-    <div>
-      <h2>Your tracker stays as it is</h2>
-      <p>It would read Jira, Linear or ClickUp. Your team keeps working the way it does now, and the client never needs a login.</p>
-    </div>
-  </section>
-
-  <section class="close">
-    <div>
-      <div class="kicker">About this page</div>
-      <p>The agencies, clients, tickets and screen are made up. The emails were written by hand to show what the tool should produce. The tool hasn't been built yet.</p>
-    </div>
-    <div>
-      <h2>How does your agency write these today?</h2>
-      <p>If you found this through a post, reply there. How long do client updates take each week, and who writes them?</p>
-    </div>
-  </section>
+    <section class="close">
+      <div>
+        <div class="kicker">About these demos</div>
+        <p>The agencies, clients and data are made up, and each demo is a scripted replay that runs the same way every time. They show how the workflows are meant to work. The workflows haven't been built yet.</p>
+      </div>
+      <div>
+        <h2>Which of these would save your agency the most time?</h2>
+        <p>If you found this through a post, reply there. Tell me how your team handles it today.</p>
+      </div>
+    </section>
+    <p class="byline">Built by David, a developer in South Africa.</p>
   </main>
 </div>
-<script>
-// Each project: one made-up week. Flag numbers in the email match the checks list.
-var PROJECTS = [
-  {
-    name: "Brightsmile", who: "Northline Studio on Jira",
-    kase: "Blocked on the client, plus a scope question",
-    source: "7 tickets reviewed, 6 used, sprint 14",
-    subject: "Booking site: week of 21 September",
-    to: "To Lerato, Brightsmile Dental Group",
-    email: [
-      ["p", "Hi Lerato,"],
-      ["p", "Here's where the booking site stands this week."],
-      ["h", "Done"],
-      ["p", "Saturday bookings work again. A time zone mismatch with the practice system was blocking them. It's fixed, and we've added a check so it can't come back quietly."],
-      ["p", "Your team can now edit practitioner profiles in the CMS."],
-      ["h", "In progress"],
-      ["p", "Page speed on phones. Large photo files are the main cause, and we're working on it."],
-      ["h", "Waiting on you"],
-      ["f1", "SMS reminders are waiting on the sender ID approval. Could you check whether it has come through?"],
-      ["p", "The home page copy from your marketing team."],
-      ["h", "Your question from Tuesday"],
-      ["f2", "Adding a medical aid field to the booking form is outside the current scope. We'll send you a quote for it."],
-      ["p", "Thanks,<br>Naledi"]
-    ],
-    checks: [
-      ["Asked three times already", "BSD-219 notes the client was asked three times. Is the tone right?"],
-      ["Offers a quote for new scope", "BSD-227 isn't in the SOW. Confirm it's a change request before promising a quote."]
-    ],
-    leftOut: "BSD-221 Refactor availability cache (internal work)<br>5 internal comments, including \"their photos are 8MB each lol\"",
-    builtFrom: "BSD-212, 215, 219, 224, 226, 227"
-  },
-  {
-    name: "Harrow & Vine", who: "Fieldwork Digital on Linear",
-    kase: "A supplier problem the client has to chase",
-    source: "6 issues reviewed, 5 used, cycle 31",
-    subject: "Store update: cycle ending 25 September",
-    to: "To Tom, Harrow & Vine",
-    email: [
-      ["p", "Hi Tom,"],
-      ["p", "A short one this fortnight."],
-      ["h", "Done"],
-      ["p", "Apple Pay works at checkout again. The age check was getting in its way."],
-      ["h", "In progress"],
-      ["p", "Moving your product reviews across. About 60% are in, and we're fixing duplicates on products that come in several sizes."],
-      ["p", "The subscription box page is built and in review."],
-      ["h", "Needs a decision"],
-      ["f1", "The nightly stock sync stopped because the warehouse changed the layout of its stock file. Could you ask them to keep the old column names, or send us the new layout so we can match it?"],
-      ["h", "Taken off our list"],
-      ["p", "Abandoned-cart emails, since your team is handling those now."],
-      ["p", "Cheers,<br>Sam"]
-    ],
-    checks: [
-      ["Mentions the client's supplier", "HV-97's note blames the warehouse. Keep the wording neutral."]
-    ],
-    leftOut: "HV-95 Theme upgrade (internal work)<br>4 internal comments, including \"warehouse renamed columns without telling anyone. again.\"",
-    builtFrom: "HV-88, 91, 93, 97, 98"
-  },
-  {
-    name: "Riverside Food Bank", who: "Tidewater Web on ClickUp",
-    kase: "Extra hours that need sign-off",
-    source: "5 tasks reviewed, 4 used, September",
-    subject: "Website: September update",
-    to: "To Priya, Riverside Food Bank",
-    email: [
-      ["p", "Hi Priya,"],
-      ["p", "Here's the September round-up."],
-      ["h", "Done"],
-      ["p", "Donors can now choose to give monthly on the donation form."],
-      ["h", "In progress"],
-      ["p", "Volunteer sign-ups going straight into your Google Sheet. Some merged cells in the sheet are getting in the way, and we'll suggest a fix."],
-      ["p", "Accessibility fixes from the audit: 14 of 22 done."],
-      ["h", "Needs your sign-off"],
-      ["f1", "The events calendar plugin doesn't work with your theme. We can build a simple calendar instead, which adds hours. We'll send an estimate for you to approve."],
-      ["p", "Best,<br>Jordan"]
-    ],
-    checks: [
-      ["Extra hours need approval", "RFB-21 needs sign-off. Have the estimate ready before this goes out."]
-    ],
-    leftOut: "RFB-22 Rotate staging passwords (internal work)<br>2 internal comments, including \"sheet has merged cells, API hates it\"",
-    builtFrom: "RFB-14, 17, 18, 21"
-  },
-  {
-    name: "Pace running app", who: "Quarry Labs on Jira",
-    kase: "Bad news: the release date slips",
-    source: "5 tickets reviewed, 4 used, release 2.3",
-    subject: "App release 2.3: launch date moves",
-    to: "To Ayesha, Pace",
-    email: [
-      ["p", "Hi Ayesha,"],
-      ["f1", "The 2.3 release won't make 3 October. Here's why, and what happens next."],
-      ["h", "What happened"],
-      ["p", "Apple's review turned down the build because the app asks for location before explaining why it needs it."],
-      ["h", "What we're doing"],
-      ["f2", "We're adding a short screen that explains location use before the permission prompt. We can resubmit on Monday at the earliest, and Apple's review takes 1 to 3 days after that, so 3 October is out."],
-      ["p", "We'll confirm the new launch date once Apple approves the build."],
-      ["h", "Also in this release"],
-      ["p", "Route sharing is done. We've also found a crash on some Android phones when the GPS signal drops, and a fix is in review."],
-      ["p", "Thanks,<br>Chris"]
-    ],
-    checks: [
-      ["Leads with a missed date", "The launch slips. Check the tone, and whether this deserves a call first."],
-      ["Gives a resubmission day", "PACE-301's note says Monday at the earliest and 1 to 3 days for review. Confirm the team can hit Monday."]
-    ],
-    leftOut: "PACE-310 Migrate CI to new runners (internal work)<br>3 internal comments, including \"launch on 3 Oct not happening\"",
-    builtFrom: "PACE-298, 301, 305, 307"
-  },
-  {
-    name: "Oakline Architects", who: "Brightwork Studio on ClickUp",
-    kase: "Monthly retainer report with hours used",
-    source: "5 tasks reviewed, 4 used, September retainer",
-    subject: "Website support: September",
-    to: "To Grace, Oakline Architects",
-    email: [
-      ["p", "Hi Grace,"],
-      ["f1", "We used 8 of your 10 support hours this month. Here's what they went on."],
-      ["h", "Done"],
-      ["p", "The contact form should get far less spam now."],
-      ["p", "Three new project case studies are live."],
-      ["p", "The team page shows your new hires."],
-      ["h", "In progress"],
-      ["f1", "The project gallery is slow because it loads all 140 images at once. We're fixing that, and the remaining work will come out of October's hours."],
-      ["h", "One small ask"],
-      ["f2", "Next time, could you send photos as separate files rather than inside a Word document? It saves us time, and your hours."],
-      ["p", "Thanks,<br>Lindiwe"]
-    ],
-    checks: [
-      ["Hours used and carried over", "8 of 10 comes from ClickUp's time tracking, and the gallery work moves into October. Confirm both against the timesheet and the retainer."],
-      ["Asks the client to change a habit", "OAK-42's note says \"again\". Keep the ask friendly."]
-    ],
-    leftOut: "OAK-46 Refactor gallery template (internal, not billed)<br>3 internal comments, including \"client sent photos in a Word doc again\"",
-    builtFrom: "OAK-41, 42, 44, 45"
-  }
-];
-
-(function () {
-  var list = document.getElementById("projects");
-  var buttons = [];
-
-  function show(i, announce) {
-    var p = PROJECTS[i];
-    buttons.forEach(function (b, j) { b.setAttribute("aria-pressed", j === i ? "true" : "false"); });
-    document.getElementById("case").textContent = p.kase;
-    document.getElementById("source").textContent = p.source;
-    document.getElementById("subject").textContent = p.subject;
-    document.getElementById("to").textContent = p.to;
-    document.getElementById("email").innerHTML = p.email.map(function (row) {
-      var kind = row[0], text = row[1];
-      if (kind === "h") return "<h3>" + text + "</h3>";
-      if (kind === "p") return "<p>" + text + "</p>";
-      var n = kind.slice(1);
-      return '<p class="flagged" aria-describedby="chk' + n + '"><span class="sr">Flag ' + n + ': </span>' + text + "</p>";
-    }).join("");
-    var c = p.checks.length;
-    document.getElementById("check-title").textContent = c + (c === 1 ? " thing" : " things") + " to check";
-    document.getElementById("check-list").innerHTML = p.checks.map(function (ch, j) {
-      return '<div class="check"><label><input type="checkbox" aria-describedby="chk' + (j + 1) + '">' + ch[0] +
-        '</label><p id="chk' + (j + 1) + '">' + ch[1] + "</p></div>";
-    }).join("");
-    document.getElementById("left-out").innerHTML = p.leftOut;
-    document.getElementById("built-from").textContent = p.builtFrom;
-    if (announce) document.getElementById("status").textContent = "Showing " + p.name + ", " + c + " to check";
-  }
-
-  PROJECTS.forEach(function (p, i) {
-    var li = document.createElement("li");
-    var b = document.createElement("button");
-    b.type = "button";
-    b.innerHTML = '<span class="name"></span><span class="count"></span><span class="who"></span>';
-    b.querySelector(".name").textContent = p.name;
-    b.querySelector(".who").textContent = p.who;
-    b.querySelector(".count").textContent = p.checks.length;
-    b.querySelector(".count").setAttribute("aria-label", p.checks.length + " to check");
-    b.addEventListener("click", function () { show(i, true); });
-    li.appendChild(b);
-    list.appendChild(li);
-    buttons.push(b);
-  });
-  show(0);
-})();
-</script>
 </body>
 </html>

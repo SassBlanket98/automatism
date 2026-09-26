@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unbilled time, found for review</title>
+<meta name="description" content="A scripted replay on made-up data: activity becomes suggested time entries, an overlap is trimmed, and a developer approves what gets logged. The tool isn't built yet.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/player.css">
+<style>
+  .ledger-intro { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
+  .ledger { display: grid; gap: 8px; }
+  .ledger-row { display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 8px 12px; align-items: baseline; padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+  .ledger-row b { color: var(--teal); font-size: 13px; }
+  .ledger-row span { min-width: 0; overflow-wrap: anywhere; }
+  .ledger-row strong { font-size: 14px; white-space: nowrap; }
+  .ledger-row small { grid-column: 2 / -1; color: var(--muted); font-size: 12.5px; }
+  .ledger-row.private { opacity: .65; }
+  .ledger-row.alert { border-color: var(--bad); background: var(--bad-bg); }
+  .ledger-row.resolved { border-color: var(--teal); background: var(--teal-soft); }
+  .sumline { margin-top: 14px; padding: 12px 14px; border-top: 2px solid var(--ink); display: flex; justify-content: space-between; gap: 12px; font-size: 15px; }
+  .sumline strong { white-space: nowrap; }
+  .entry-list { display: grid; gap: 10px; }
+  .entry { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--panel); min-width: 0; }
+  .entry.alert { border: 2px solid var(--bad); background: var(--bad-bg); }
+  .entry.resolved { border: 2px solid var(--teal); background: var(--teal-soft); }
+  .entry-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 14px; }
+  .entry-head b { overflow-wrap: anywhere; }
+  .entry-head strong { white-space: nowrap; color: var(--teal); }
+  .entry p { margin: 6px 0; font-size: 14px; }
+  .entry small { color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+  .entry .warning { color: var(--bad); font-weight: 700; }
+  .entry .repair { color: var(--teal); font-weight: 700; }
+  .review-list { display: grid; gap: 12px; }
+  .review-item { display: flex; align-items: flex-start; gap: 10px; }
+  .review-item .box { width: 19px; height: 19px; flex: 0 0 19px; border: 2px solid var(--muted); border-radius: 4px; margin-top: 2px; display: flex; align-items: center; justify-content: center; }
+  .review-item .box.on { background: var(--teal); color: #fff; border-color: var(--teal); }
+  .review-item .box svg { width: 12px; height: 12px; }
+  .review-item p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+  .review-foot { border-top: 1px solid var(--line); padding-top: 14px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .review-foot .who { width: 40px; height: 40px; border-radius: 50%; background: var(--teal); color: #fff; font-weight: 800; display: grid; place-items: center; }
+  .review-foot p { flex: 1 1 190px; margin: 0; font-size: 14px; }
+  .review-foot .btn { border: 2px dashed var(--muted); color: var(--muted); border-radius: 10px; padding: 10px 14px; font-size: 14px; font-weight: 700; }
+  .review-foot .btn.on { border: 2px solid var(--teal); color: #fff; background: var(--teal); }
+  @media (max-width: 620px) {
+    .conveyor li span { font-size: 10px; overflow-wrap: anywhere; }
+    .ledger-row { grid-template-columns: 55px minmax(0, 1fr) auto; gap: 6px; padding: 10px; font-size: 13px; }
+    .ledger-row small { grid-column: 1 / -1; }
+    .entry { padding: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><a class="brand" href="../">Automatism</a><nav><a href="../">All demos</a></nav></header>
+  <main>
+    <section class="hero" style="padding-top: 64px; max-width: 980px">
+      <h1>A week of commits, tickets and meetings in. The hours nobody logged, out.</h1>
+      <p class="lede">Watch Sipho's week at Northline Studio become suggested time entries. One overlaps time already billed to another client, so the rule trims it before Sipho reviews anything. This is a scripted replay on made-up data. The tool isn't built yet.</p>
+    </section>
+
+    <h2 class="sr">Unbilled time pipeline replay</h2>
+    <div class="player" id="player"></div>
+
+    <section class="after">
+      <h2 class="sr">How the pipeline works</h2>
+      <ol class="steps">
+        <li><h3>Collect</h3><p>Reads the week's GitHub commits, Jira ticket activity, Google Calendar events and existing Harvest entries.</p></li>
+        <li><h3>Match</h3><p>Uses repos, ticket keys and meeting attendees to find the client and project. Private events stay out. Internal work stays non-billable.</p></li>
+        <li><h3>Find gaps</h3><p>Compares activity with existing Harvest entries for the same client and project. It finds 4.50 hours without matching entries. The cross-client time check comes later.</p></li>
+        <li><h3>Suggest</h3><p>Drafts a date, client, project, hours, note and source links for each possible entry.</p></li>
+        <li><h3>Guardrails</h3><p>Checks the source and existing Harvest entries. A 45 minute overlap on another client is blocked and trimmed, then checked again.</p></li>
+        <li><h3>Review</h3><p>Sipho checks and approves each corrected entry. The replay shows those approvals one by one.</p></li>
+        <li><h3>Log</h3><p>Adds only the approved entries to Harvest. Existing entries and invoices are untouched.</p></li>
+      </ol>
+
+      <section class="close">
+        <div>
+          <div class="kicker">About this demo</div>
+          <p>Northline Studio, Sipho, both clients and all activity are made up. The same scripted run plays every time. It shows the intended workflow; the tool hasn't been built yet.</p>
+        </div>
+        <div>
+          <h2>How does your agency catch unlogged time today?</h2>
+          <p>If you found this through a post, reply there.</p>
+        </div>
+      </section>
+      <p class="byline">Built by David, a developer in South Africa.</p>
+    </section>
+  </main>
+</div>
+
+<script src="../assets/player.js"></script>
+<script>
+(function () {
+  var esc = Pipeline.esc;
+  var tick = '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg>';
+  var icons = {
+    collect: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h4l1.5 3h5L16 13h4"/><path d="M4 13l2.5-7h11L20 13v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/></svg>',
+    match: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h7l3 5h6M4 17h7l3-5"/><circle cx="4" cy="7" r="2"/><circle cx="4" cy="17" r="2"/><circle cx="20" cy="12" r="2"/></svg>',
+    gaps: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5v14M3 8h6m5 0h7M3 16h10m4 0h4"/><path d="M9 6v4m5-4v4m-1 4v4m4-4v4"/></svg>',
+    suggest: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v5h4M8 12h8M8 16h6"/></svg>',
+    guard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M8.8 12l2.2 2.2 4.3-4.4"/></svg>',
+    review: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.8-3.6 3.4-5.5 6.5-5.5 1.6 0 3 .5 4.1 1.4M15 18.5l2 2 4-4.5"/></svg>',
+    log: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14v16H5zM8 9h8M8 13h8M8 17h5"/></svg>'
+  };
+
+  var sources = [
+    { name: "GitHub", detail: "6 commits in booking-site and vine-store" },
+    { name: "Jira", detail: "5 ticket activity blocks, including BSD-238 and HV-91" },
+    { name: "Google Calendar", detail: "3 work meetings and 1 private event" },
+    { name: "Harvest", detail: "33.00 hours already logged for the week" }
+  ];
+  var entries = [
+    { day: "Mon 21", client: "Brightsmile Dental", project: "Booking site", hours: 1, note: "Fixed booking slot validation", links: "GitHub booking-site/8f21, Jira BSD-238" },
+    { day: "Tue 22", client: "Harrow & Vine", project: "Online store", hours: 1, note: "Updated checkout shipping rules", links: "GitHub vine-store/4c10, Jira HV-91" },
+    { day: "Wed 23", client: "Brightsmile Dental", project: "Booking site", hours: 1.5, note: "Reviewed booking flow with client", links: "Google Calendar booking review 10:00 to 11:30, Jira BSD-241" },
+    { day: "Thu 24", client: "Harrow & Vine", project: "Online store", hours: 1, note: "Tested product filters", links: "GitHub vine-store/a773, Jira HV-96" }
+  ];
+  var days = [
+    { day: "Mon 21", project: "Brightsmile Dental / Booking site", gap: 1 },
+    { day: "Tue 22", project: "Harrow & Vine / Online store", gap: 1 },
+    { day: "Wed 23", project: "Brightsmile Dental / Booking site", gap: 1.5 },
+    { day: "Thu 24", project: "Harrow & Vine / Online store", gap: 1 },
+    { day: "Fri 25", project: "Both client projects", gap: 0 }
+  ];
+  function mark(key) { return function (d, i) { d[key] = i; }; }
+  function add(key, count) { return function (d, i) { d[key] = count; d[key + "At"] = i; }; }
+  function fresh(at, k) { return at === k ? " enter" : ""; }
+  function yes(d, key) { return d[key] !== undefined; }
+  function hours(n) { return n.toFixed(2) + " h"; }
+
+  var beats = [
+    { stage: "collect", dur: 1800, log: [["Reading Sipho's week, Mon 21 to Fri 25 Sep 2026"]], rules: { actions: ["run", "Reading four allowed sources"] } },
+    { stage: "collect", dur: 1000, log: [["GitHub: 6 commits across two client repos"]], do: add("sources", 1) },
+    { stage: "collect", dur: 1000, log: [["Jira: 5 ticket activity blocks"]], do: add("sources", 2) },
+    { stage: "collect", dur: 1000, log: [["Google Calendar: 3 work meetings, 1 private event"]], do: add("sources", 3) },
+    { stage: "collect", dur: 1200, log: [["Harvest: 33.00 hours already logged"]], do: add("sources", 4), rules: { actions: ["pass", "Read GitHub, Jira, Calendar and Harvest only"] } },
+
+    { stage: "match", dur: 1900, log: [["Matching repos and ticket keys to Brightsmile and Harrow & Vine"]], do: mark("matched") },
+    { stage: "match", dur: 1200, log: [["Meeting attendees match the booking site"]], do: mark("meeting") },
+    { stage: "match", dur: 1200, log: [["Private dentist appointment dropped. No entry made.", "good"]], do: mark("private"), rules: { sensitive: ["pass", "Private event dropped at match"] } },
+    { stage: "match", dur: 1100, log: [["CI fix matched to internal, non-billable work"]], do: mark("internal") },
+
+    { stage: "gaps", dur: 1700, log: [["Comparing activity with Harvest entries for the same client and project"]], do: add("days", 1) },
+    { stage: "gaps", dur: 1000, log: [["Mon: 1.00 h missing. Tue: 1.00 h missing."]], do: add("days", 2) },
+    { stage: "gaps", dur: 1000, log: [["Wed: 1.50 h without a matching entry. Thu: 1.00 h."]], do: add("days", 4) },
+    { stage: "gaps", dur: 1200, log: [["Fri: no unmatched activity. Total for the four days: 4.50 h to suggest."]], do: add("days", 5) },
+
+    { stage: "suggest", dur: 1800, log: [["Drafting entries with date, client, project, note and source links"]], rules: { source: ["run", "Checking four draft entries"] } },
+    { stage: "suggest", dur: 950, log: [["Mon: 1.00 h for Brightsmile Dental"]], do: add("entries", 1) },
+    { stage: "suggest", dur: 950, log: [["Tue: 1.00 h for Harrow & Vine"]], do: add("entries", 2) },
+    { stage: "suggest", dur: 950, log: [["Wed: 1.50 h proposed for Brightsmile Dental"]], do: add("entries", 3) },
+    { stage: "suggest", dur: 1100, log: [["Thu: 1.00 h for Harrow & Vine. Draft total: 4.50 h."]], do: add("entries", 4), rules: { source: ["pass", "4 of 4 entries link to activity"] } },
+
+    { stage: "guard", dur: 1800, log: [["Checking draft times against all existing Harvest entries"]], rules: { overlap: ["run", "Checking times across all clients"] } },
+    { stage: "guard", dur: 1900, halt: true, log: [["BLOCKED: Wed 10:00 to 11:30 overlaps 10:45 to 11:30 already logged to Harrow & Vine", "bad"]], do: mark("caught"), rules: { overlap: ["fail", "Wed draft overlaps 0.75 h billed to Harrow & Vine"] } },
+    { stage: "guard", dur: 1400, log: [["Trimmed Wed Brightsmile entry from 1.50 h to 0.75 h", "warn"]], do: mark("trimmed") },
+    { stage: "guard", dur: 1200, log: [["Recheck passed: 3.75 h across four entries, no overlap", "good"]], do: mark("checked"), rules: { overlap: ["pass", "No hour is billed to two clients"] } },
+
+    { stage: "review", dur: 1900, log: [["Four corrected entries sent to Sipho for review"]], rules: { human: ["wait", "Waiting for Sipho's approval"] } },
+    { stage: "review", dur: 900, log: [["Sipho approved Monday's 1.00 h"]], do: add("approved", 1) },
+    { stage: "review", dur: 900, log: [["Sipho approved Tuesday's 1.00 h"]], do: add("approved", 2) },
+    { stage: "review", dur: 900, log: [["Sipho checked the trimmed Wednesday entry and approved 0.75 h"]], do: add("approved", 3) },
+    { stage: "review", dur: 1300, log: [["Sipho approved Thursday's 1.00 h. Total approved: 3.75 h.", "good"]], do: add("approved", 4), rules: { human: ["pass", "Sipho approved all four corrected entries"] } },
+
+    { stage: "log", dur: 1100, log: [["Creating four new approved entries in Harvest"]], do: mark("logging") },
+    { stage: "log", dur: 1100, log: [["Harvest added 1.00 + 1.00 + 0.75 + 1.00 = 3.75 h", "good"]], do: mark("logged") },
+    { stage: "log", dur: 1300, done: true, log: [["Week now totals 36.75 h. Existing entries and invoices untouched.", "good"]], do: mark("finished"), rules: { actions: ["pass", "Only four new entries created. No edits, deletions or invoice actions."] } }
+  ];
+
+  function sourceHtml(d, k) {
+    return '<p class="ledger-intro">Four sources for Sipho\'s week. Each row appears as it is collected.</p><div class="ledger">' + sources.slice(0, d.sources || 0).map(function (s) {
+      return '<div class="ledger-row' + fresh(d.sourcesAt, k) + '"><b>' + esc(s.name) + '</b><span>' + esc(s.detail) + '</span></div>';
+    }).join("") + '</div>' + (d.sources === 4 ? '<div class="sumline"><span>Already logged in Harvest</span><strong>33.00 h</strong></div>' : '');
+  }
+  function matchHtml(d, k) {
+    var rows = [
+      ["Client", "booking-site and BSD tickets", "Brightsmile Dental, booking site"],
+      ["Client", "vine-store and HV tickets", "Harrow & Vine, online store"],
+      ["Meeting", "Booking review attendees", "Brightsmile Dental, booking site"],
+      ["Private", "Personal calendar event", "Dropped. No entry or note"],
+      ["Internal", "CI fix commit", "Northline Studio, non-billable"]
+    ];
+    var n = d.internal !== undefined ? 5 : d.private !== undefined ? 4 : d.meeting !== undefined ? 3 : d.matched !== undefined ? 2 : 0;
+    return '<div class="ledger">' + rows.slice(0, n).map(function (r, i) {
+      return '<div class="ledger-row' + (i === 3 ? ' private' : '') + fresh(i === 3 ? d.private : i === 4 ? d.internal : i === 2 ? d.meeting : d.matched, k) + '"><b>' + r[0] + '</b><span>' + esc(r[1]) + '</span><small>' + esc(r[2]) + '</small></div>';
+    }).join("") + '</div>';
+  }
+  function gapsHtml(d, k) {
+    return '<p class="ledger-intro">Activity without a Harvest entry for the same client and project. Cross-client time overlaps are checked later.</p><div class="ledger">' + days.slice(0, d.days || 0).map(function (x) {
+      return '<div class="ledger-row' + fresh(d.daysAt, k) + '"><b>' + x.day + '</b><span>' + esc(x.project) + '</span><strong>' + hours(x.gap) + ' unmatched</strong></div>';
+    }).join("") + '</div>' + (d.days === 5 ? '<div class="sumline"><span>Activity without a matching client and project entry</span><strong>4.50 h</strong></div>' : '');
+  }
+  function entryHtml(d, k, count) {
+    return '<div class="entry-list">' + entries.slice(0, count).map(function (e, i) {
+      var wed = i === 2, caught = wed && yes(d, "caught") && !yes(d, "trimmed"), fixed = wed && yes(d, "trimmed");
+      var h = fixed ? .75 : e.hours;
+      return '<div class="entry' + (caught ? ' alert' : fixed ? ' resolved' : '') + fresh((d.entries === i + 1 ? d.entriesAt : fixed ? d.trimmed : undefined), k) + '"><div class="entry-head"><b>' + e.day + ' Sep 2026 / ' + esc(e.client) + '</b><strong>' + hours(h) + '</strong></div><p>' + esc(e.project) + ': ' + esc(e.note) + '</p><small>Sources: ' + esc(e.links) + '</small>' + (caught ? '<p class="warning">Blocked: 10:45 to 11:30 is already logged to Harrow & Vine.</p>' : fixed ? '<p class="repair">Trimmed from 1.50 h. Recheck ' + (yes(d, "checked") ? 'passed.' : 'pending.') + '</p>' : '') + '</div>';
+    }).join("") + '</div>';
+  }
+  function reviewHtml(d, k) {
+    return '<div class="review-list">' + entries.map(function (e, i) {
+      var checked = (d.approved || 0) > i;
+      return '<div class="review-item' + fresh(checked && d.approved === i + 1 ? d.approvedAt : undefined, k) + '"><span class="box' + (checked ? ' on' : '') + '">' + (checked ? tick : '') + '</span><div><b>' + e.day + ': ' + esc(e.client) + ', ' + hours(i === 2 ? .75 : e.hours) + '</b><p>' + esc(e.project) + '. ' + esc(e.note) + (i === 2 ? ' Trimmed after overlap check.' : '') + '</p></div></div>';
+    }).join("") + '</div><div class="review-foot"><span class="who" aria-hidden="true">S</span><p>' + (d.approved === 4 ? 'Sipho approved 3.75 h across four entries.' : 'Sipho checks each entry before anything is logged.') + '</p><span class="btn' + (d.approved === 4 ? ' on' : '') + '">' + (d.approved === 4 ? 'Approved' : 'Review pending') + '</span></div>';
+  }
+  function render(st, k) {
+    var d = st.data, stage = st.cur < 0 ? null : beats[k].stage;
+    if (!stage) return { title: "Ready to run", note: "Northline Studio, Sipho, 21 to 25 Sep 2026", html: '<div class="poster"><div class="big">A week of work, checked against the time sheet</div><p>Press Play to follow four suggested entries through an overlap check and Sipho\'s approval. The run takes under 40 seconds. Step through it at your own pace if you prefer.</p></div>' };
+    if (stage === "collect") return { title: "Collect", note: "Read activity and the 33.00 hours already in Harvest", html: sourceHtml(d, k) };
+    if (stage === "match") return { title: "Match", note: "Place work with the right client or keep it out", html: matchHtml(d, k) };
+    if (stage === "gaps") return { title: "Find gaps", note: "4.50 hours without matching client and project entries", html: gapsHtml(d, k) };
+    if (stage === "suggest") return { title: "Suggest", note: "Draft proposals, before the cross-client overlap check", html: entryHtml(d, k, d.entries || 0) + (d.entries === 4 ? '<div class="sumline"><span>Proposed, before guardrails</span><strong>4.50 h</strong></div>' : '') };
+    if (stage === "guard") return { title: "Guardrails", note: yes(d, "caught") && !yes(d, "trimmed") ? "A 45 minute overlap blocks the draft" : "Check all clients before Sipho sees the entries", html: entryHtml(d, k, 4) + '<div class="sumline"><span>' + (yes(d, "trimmed") ? 'Corrected total' : 'Proposed total') + '</span><strong>' + (yes(d, "trimmed") ? '3.75 h' : '4.50 h') + '</strong></div>' };
+    if (stage === "review") return { title: "Review", note: "Sipho approves each corrected entry", html: reviewHtml(d, k) };
+    return { title: "Log", note: "Create approved entries in Harvest", html: '<div class="poster"><div class="big">' + (yes(d, "logged") ? '3.75 hours added' : 'Four approved entries ready') + '</div><p>' + (yes(d, "finished") ? 'Harvest now shows 36.75 hours for the week. The tool created four entries. It did not edit or delete existing entries, and it did not touch invoices.' : yes(d, "logged") ? '1.00 + 1.00 + 0.75 + 1.00 hours were added as four new Harvest entries.' : 'Sipho approved all four corrected entries. Only those entries can be created.') + '</p></div>' };
+  }
+
+  Pipeline.mount(document.getElementById("player"), {
+    title: "Sipho's week, 21 to 25 Sep 2026",
+    subtitle: "Northline Studio: activity to approved Harvest entries",
+    clock: "16:40:00",
+    stages: [
+      { id: "collect", label: "Collect", icon: icons.collect },
+      { id: "match", label: "Match", icon: icons.match },
+      { id: "gaps", label: "Find gaps", icon: icons.gaps },
+      { id: "suggest", label: "Suggest", icon: icons.suggest },
+      { id: "guard", label: "Guardrails", icon: icons.guard },
+      { id: "review", label: "Review", icon: icons.review },
+      { id: "log", label: "Log", icon: icons.log }
+    ],
+    rules: [
+      { id: "source", label: "Every entry traced to a source", detail: "Each proposed entry links to activity" },
+      { id: "actions", label: "Only allowed actions", detail: "Read GitHub, Jira, Calendar and Harvest; create new entries only" },
+      { id: "overlap", label: "No double billing", detail: "No hour is billed to two clients" },
+      { id: "sensitive", label: "Private data stays in", detail: "Private events and internal work never become billable entries" },
+      { id: "human", label: "A person approves", detail: "Sipho approves each entry before it is logged" }
+    ],
+    init: function () { return { sources: 0, days: 0, entries: 0, approved: 0 }; },
+    beats: beats,
+    render: render
+  });
+})();
+</script>
+</body>
+</html>

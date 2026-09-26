@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client updates, drafted from Jira</title>
+<meta name="description" content="Watch a scripted run: seven Jira tickets become a client update, internal notes stay out, a guardrail catches a leak, and a person approves it. Made-up data; the tool isn't built yet.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="../assets/player.css">
+</head>
+<body>
+<div class="wrap">
+  <header class="top"><a class="brand" href="../">Automatism</a><nav><a href="../">All demos</a></nav></header>
+  <main>
+    <section class="hero" style="padding-top: 64px; max-width: 980px">
+      <h1>Seven Jira tickets in. One client update out.</h1>
+      <p class="lede">Watch the pipeline read an agency's sprint, keep the internal notes back, write the update, catch its own mistake and hand it to a person to approve. This is a scripted replay on made-up data. The tool isn't built yet.</p>
+    </section>
+
+    <div class="player" id="player"></div>
+
+    <section class="after">
+      <ol class="steps">
+        <li><h3>Collect</h3><p>Reads the tickets and comments that changed since the last update, with read-only access to the tracker.</p></li>
+        <li><h3>Clean</h3><p>Moves internal comments into a store that the draft can learn from but never quote.</p></li>
+        <li><h3>Classify</h3><p>Sorts each ticket: done, in progress, waiting on the client, a scope question, or internal work to leave out.</p></li>
+        <li><h3>Draft</h3><p>Writes the update in plain language. Every line carries the ticket it came from.</p></li>
+        <li><h3>Guardrails</h3><p>Blocks unsourced lines and anything that repeats an internal comment, and flags promises, dates, money and awkward asks.</p></li>
+        <li><h3>Review</h3><p>A person who knows the project checks the flags and approves. They send it from their own email. The tool can't send.</p></li>
+      </ol>
+
+      <section class="close">
+        <div>
+          <div class="kicker">About this demo</div>
+          <p>The agency, client, tickets and run are made up, and the replay is the same every time. It shows how the tool is meant to work. The tool hasn't been built yet.</p>
+        </div>
+        <div>
+          <h2>How does your agency write these today?</h2>
+          <p>If you found this through a post, reply there. How long do client updates take each week, and who writes them?</p>
+        </div>
+      </section>
+      <p class="byline">Built by David, a developer in South Africa.</p>
+    </section>
+  </main>
+</div>
+
+<script src="../assets/player.js"></script>
+<script>
+(function () {
+  var esc = Pipeline.esc;
+  var I = {
+    collect: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 13h4l1.5 3h5L16 13h4"/><path d="M4 13l2.5-7h11L20 13v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M12 3v7m-3-3l3 3 3-3"/></svg>',
+    clean: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6 7.5V19l-4 1.5v-8z"/></svg>',
+    classify: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 12.5V4.5a1 1 0 0 1 1-1h8l8 8-9 9z"/><circle cx="8.5" cy="8.5" r="1.5"/></svg>',
+    draft: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
+    guard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 3v5.5c0 4.5-3.2 8-7.5 9.5-4.3-1.5-7.5-5-7.5-9.5V6z"/><path d="M8.8 12l2.2 2.2 4.3-4.4"/></svg>',
+    review: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.8-3.6 3.4-5.5 6.5-5.5 1.6 0 3 .5 4.1 1.4"/><path d="M15 18.5l2 2 4-4.5"/></svg>',
+    lock: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>',
+    tick: '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 6.2l2.3 2.3 4.7-5"/></svg>'
+  };
+
+  var T = [
+    { k: "BSD-212", t: "Slot API returns 500 on Saturdays", s: "Done", c: "c-done", note: "tz offset on the practice system sandbox. hotfixed, added test", cls: ["Done: tell the client", "c-done"] },
+    { k: "BSD-215", t: "Practitioner profile fields in CMS", s: "Done", c: "c-done", cls: ["Done: tell the client", "c-done"] },
+    { k: "BSD-219", t: "SMS reminders via gateway", s: "Blocked", c: "c-bad", note: "still waiting on client for sender ID approval. asked 3x", cls: ["Waiting on the client", "c-wait"] },
+    { k: "BSD-221", t: "Refactor availability cache", s: "In progress", c: "c-prog", cls: ["Internal work: leave out", "c-int"] },
+    { k: "BSD-224", t: "Home page hero copy", s: "To do", c: "c-int", note: "copy not in from their marketing yet", cls: ["Waiting on the client", "c-wait"] },
+    { k: "BSD-226", t: "Mobile speed: oversized hero photos", s: "In progress", c: "c-prog", note: "their photos are 8MB each lol", cls: ["In progress", "c-prog"] },
+    { k: "BSD-227", t: "Add medical aid field to booking form", s: "New", c: "c-int", note: "not in SOW. client asked on Tuesday's call. change request?", cls: ["Scope question", "c-scope"] }
+  ];
+
+  // The draft, in order. "leak" is the first version of the BSD-226 line, which the guardrail blocks.
+  var D = [
+    { id: "hi", text: "Hi Lerato," },
+    { id: "intro", text: "Here's where the booking site stands this week." },
+    { id: "h1", head: "Done" },
+    { id: "p212", src: "BSD-212", text: "Saturday bookings work again. A time zone mismatch with the practice system was blocking them. It's fixed, and we've added a check so it can't come back quietly." },
+    { id: "p215", src: "BSD-215", text: "Your team can now edit practitioner profiles in the CMS." },
+    { id: "h2", head: "In progress" },
+    { id: "p226", src: "BSD-226", leak: "Page speed on phones is poor because your photos are 8MB each.", text: "Page speed on phones. Large photo files are the main cause, and we're working on it." },
+    { id: "h3", head: "Waiting on you" },
+    { id: "p219", src: "BSD-219", flag: 1, text: "SMS reminders are waiting on the sender ID approval. Could you check whether it has come through?" },
+    { id: "p224", src: "BSD-224", text: "The home page copy from your marketing team." },
+    { id: "h4", head: "Your question from Tuesday" },
+    { id: "p227", src: "BSD-227", flag: 2, text: "Adding a medical aid field to the booking form is outside the current scope. We'll send you a quote for it." },
+    { id: "bye", text: "Thanks,<br>Naledi" }
+  ];
+
+  function addTickets(from, to) { return function (d, i) { for (var j = from; j <= to; j++) d.tickets.push({ i: j, at: i }); }; }
+  function addClasses(list) { return function (d, i) { list.forEach(function (j) { d.cls[j] = i; }); }; }
+  function addDraft(ids) { return function (d, i) { ids.forEach(function (id) { d.draft.push({ id: id, at: i }); }); }; }
+  function set(key) { return function (d, i) { d[key] = i; }; }
+
+  var beats = [
+    { stage: "collect", dur: 1000, log: [["Connected to Jira project BSD with a read-only token"]], rules: { actions: ["run", "Checking: read Jira, write a draft"] } },
+    { stage: "collect", dur: 700, log: [["Fetching issues changed since Fri 18 Sep, 16:00"]] },
+    { stage: "collect", dur: 650, log: [["Got BSD-212, BSD-215, BSD-219"]], do: addTickets(0, 2) },
+    { stage: "collect", dur: 650, log: [["Got BSD-221, BSD-224"]], do: addTickets(3, 4) },
+    { stage: "collect", dur: 650, log: [["Got BSD-226, BSD-227"]], do: addTickets(5, 6) },
+    { stage: "collect", dur: 1300, log: [["7 issues and 5 comments collected"]], rules: { actions: ["pass", "Read-only on Jira. No other systems touched."] } },
+
+    { stage: "clean", dur: 1200, t: 2, log: [["Separating internal comments from ticket text"]], rules: { sensitive: ["run", "Scanning 5 comments"] } },
+    { stage: "clean", dur: 1600, log: [["5 internal comments moved to the internal store"]], do: set("vault") },
+    { stage: "clean", dur: 1300, log: [["No credentials or personal details found in ticket text", "good"]], rules: { sensitive: ["wait", "5 comments held back. The draft gets checked against them."] } },
+
+    { stage: "classify", dur: 800, t: 2, log: [["Classifying 7 issues for the client"]] },
+    { stage: "classify", dur: 850, log: [["BSD-212, BSD-215: done"]], do: addClasses([0, 1]) },
+    { stage: "classify", dur: 850, log: [["BSD-219, BSD-224: waiting on the client"]], do: addClasses([2, 4]) },
+    { stage: "classify", dur: 850, log: [["BSD-226: in progress"]], do: addClasses([5]) },
+    { stage: "classify", dur: 1000, log: [["BSD-221: internal work, left out", "warn"]], do: addClasses([3]) },
+    { stage: "classify", dur: 1500, log: [["BSD-227: not in the statement of work, marked as a scope question", "warn"]], do: addClasses([6]) },
+
+    { stage: "draft", dur: 900, t: 2, log: [["Drafting the update for Lerato from 6 issues"]] },
+    { stage: "draft", dur: 1000, t: 3, do: addDraft(["hi", "intro"]) },
+    { stage: "draft", dur: 1300, t: 3, do: addDraft(["h1", "p212", "p215"]) },
+    { stage: "draft", dur: 1100, t: 3, do: addDraft(["h2", "p226"]) },
+    { stage: "draft", dur: 1200, t: 3, do: addDraft(["h3", "p219", "p224"]) },
+    { stage: "draft", dur: 1200, t: 3, do: addDraft(["h4", "p227", "bye"]) },
+    { stage: "draft", dur: 1100, log: [["Draft ready: 6 content lines, each tagged with its ticket"]] },
+
+    { stage: "guard", dur: 1100, log: [["Checking every line has a source"]], rules: { source: ["run", "Checking 6 lines"] } },
+    { stage: "guard", dur: 1000, log: [["6 of 6 lines trace to a ticket", "good"]], rules: { source: ["pass", "6 of 6 lines cite a ticket"] } },
+    { stage: "guard", dur: 1300, log: [["Comparing the draft with the 5 internal comments"]], rules: { sensitive: ["run", "Comparing draft with 5 internal comments"] } },
+    { stage: "guard", dur: 2600, halt: true, log: [["BLOCKED: a line repeats the internal comment on BSD-226 (\"their photos are 8MB each\")", "bad"]], rules: { sensitive: ["fail", "A line repeats BSD-226's internal comment"] }, do: set("caught") },
+    { stage: "guard", dur: 1900, log: [["Rewriting that line without the internal detail", "warn"]], do: set("fixed") },
+    { stage: "guard", dur: 1200, log: [["Recheck passed: no internal text left in the draft", "good"]], rules: { sensitive: ["pass", "Rewritten line passes. No internal text left."] } },
+    { stage: "guard", dur: 1500, log: [["Flagged for a person: BSD-219 (third time asking), BSD-227 (offers a quote)", "warn"]], rules: { human: ["flag", "2 lines need a person: a third ask and a quote"] }, do: set("flags") },
+    { stage: "guard", dur: 1100, log: [["Saved as a draft. Sending isn't an allowed action for this workflow"]], rules: { actions: ["pass", "Draft saved. Sending isn't allowed."] } },
+
+    { stage: "review", dur: 1600, t: 30, log: [["Draft sent to Naledi for review"]], rules: { human: ["wait", "Waiting for Naledi"] } },
+    { stage: "review", dur: 1500, t: 40, log: [["Naledi checked the tone of the SMS reminder line"]], do: set("c1") },
+    { stage: "review", dur: 1500, t: 30, log: [["Naledi confirmed BSD-227 is a change request and OK'd offering a quote"]], do: set("c2") },
+    { stage: "review", dur: 2000, t: 10, done: true, log: [["Approved by Naledi. She sends it from her own email. The tool sent nothing.", "good"]], rules: { human: ["pass", "Approved by Naledi"] }, do: set("ok") }
+  ];
+
+  function has(d, key) { return d[key] !== undefined; }
+  function fresh(at, k) { return at === k ? " enter" : ""; }
+
+  function ticketRows(d, k, mode) {
+    return '<ul class="rows">' + d.tickets.map(function (x) {
+      var t = T[x.i];
+      var chip = '<span class="chip ' + t.c + '">' + t.s + "</span>";
+      var extra = "";
+      if (mode === "classify" && d.cls[x.i] !== undefined) {
+        chip = '<span class="chip ' + t.cls[1] + fresh(d.cls[x.i], k) + '">' + t.cls[0] + "</span>";
+      }
+      if (t.note) {
+        if (mode === "collect") extra = '<div class="n"><b>Comment:</b> ' + esc(t.note) + "</div>";
+        else extra = '<div class="n">1 internal comment held back</div>';
+      }
+      var dim = mode === "classify" && t.cls[1] === "c-int" && d.cls[x.i] !== undefined ? ' style="opacity:.55"' : "";
+      return '<li class="row' + fresh(x.at, k) + '"' + dim + '><span class="k">' + t.k + '</span><span class="t">' + esc(t.t) + "</span>" + chip + extra + "</li>";
+    }).join("") + "</ul>";
+  }
+
+  function vault(d, k) {
+    return '<div class="vault' + fresh(d.vault, k) + '"><h5>' + I.lock + "Internal store: used for context, never quoted</h5><ul>" +
+      T.filter(function (t) { return t.note; }).map(function (t) { return "<li>" + t.k + ": " + esc(t.note) + "</li>"; }).join("") + "</ul></div>";
+  }
+
+  function draftHtml(d, k, final) {
+    var last = d.draft.length ? d.draft[d.draft.length - 1].id : null;
+    return '<div class="draft">' + d.draft.map(function (x) {
+      var p = D.filter(function (y) { return y.id === x.id; })[0];
+      if (p.head) return '<h6 class="' + fresh(x.at, k) + '">' + p.head + "</h6>";
+      var src = p.src ? '<span class="src">' + p.src + "</span>" : "";
+      var caret = !final && x.id === last && x.at === k ? " caret" : "";
+      if (p.leak && !has(d, "fixed")) {
+        if (has(d, "caught")) return '<p class="caught' + fresh(d.caught, k) + '"><span class="stamp">Blocked: repeats an internal comment</span><br><del>' + esc(p.leak) + "</del>" + src + "</p>";
+        return '<p class="' + fresh(x.at, k) + caret + '">' + esc(p.leak) + src + "</p>";
+      }
+      if (p.leak) return '<p class="fixed' + fresh(d.fixed, k) + '">' + esc(p.text) + src + "</p>";
+      if (p.flag && has(d, "flags")) return '<p class="flagged' + fresh(d.flags, k) + '"><span class="sr">Flag ' + p.flag + ": </span>" + esc(p.text) + src + "</p>";
+      return '<p class="' + fresh(x.at, k) + caret + '">' + p.text + src + "</p>";
+    }).join("") + "</div>";
+  }
+
+  function render(st, k) {
+    var d = st.data, stage = st.cur < 0 ? null : beats[k].stage;
+    if (!stage) return {
+      title: "Ready to run",
+      note: "Northline Studio, Jira project BSD",
+      html: '<div class="poster"><div class="big">Brightsmile booking site, sprint 14</div><p>Press Play to watch the pipeline turn this week\'s Jira tickets into an update for the client. It takes about 40 seconds. Use the step buttons to go through it at your own pace.</p></div>'
+    };
+    if (stage === "collect") return { title: "Collect", note: "Tickets and comments changed since the last update", html: ticketRows(d, k, "collect") };
+    if (stage === "clean") return { title: "Clean", note: "Internal comments go to a store the draft can't quote", html: ticketRows(d, k, "clean") + (has(d, "vault") ? vault(d, k) : "") };
+    if (stage === "classify") return { title: "Classify", note: "What the client needs to hear about, and what stays internal", html: ticketRows(d, k, "classify") };
+    if (stage === "draft") return { title: "Draft", note: "To Lerato, Brightsmile Dental Group", html: draftHtml(d, k, false) };
+    if (stage === "guard") return { title: "Guardrails", note: has(d, "caught") && !has(d, "fixed") ? "A rule failed. The draft can't move on until it's fixed." : "Every rule has to pass before a person sees it", html: draftHtml(d, k, true) };
+    var box = function (key) { return '<span class="box' + (has(d, key) ? " on" : "") + '">' + (has(d, key) ? I.tick : "") + "</span>"; };
+    return {
+      title: "Review",
+      note: "Naledi, project manager",
+      html: '<div class="review">' + draftHtml(d, k, true) +
+        '<div class="checkline' + fresh(d.c1, k) + '">' + box("c1") + "<span><b>1.</b> Third time asking about the sender ID. Tone checked.</span></div>" +
+        '<div class="checkline' + fresh(d.c2, k) + '">' + box("c2") + "<span><b>2.</b> BSD-227 is outside the SOW. Confirmed as a change request, quote OK to offer.</span></div>" +
+        '<div class="approve"><span class="who" aria-hidden="true">N</span><p>' + (has(d, "ok") ? "Approved. Naledi sends it from her own email." : "Nothing has been sent. Naledi decides.") + '</p><span class="btn' + (has(d, "ok") ? " on" : "") + '">' + (has(d, "ok") ? "Approved" : "Approve") + "</span></div></div>"
+    };
+  }
+
+  Pipeline.mount(document.getElementById("player"), {
+    title: "Brightsmile booking site, sprint 14",
+    subtitle: "Northline Studio: Jira to a client update",
+    clock: "16:40:00",
+    stages: [
+      { id: "collect", label: "Collect", icon: I.collect },
+      { id: "clean", label: "Clean", icon: I.clean },
+      { id: "classify", label: "Classify", icon: I.classify },
+      { id: "draft", label: "Draft", icon: I.draft },
+      { id: "guard", label: "Guardrails", icon: I.guard },
+      { id: "review", label: "Review", icon: I.review }
+    ],
+    rules: [
+      { id: "source", label: "Every line traced to a source", detail: "Each line must cite a ticket" },
+      { id: "actions", label: "Only allowed actions", detail: "This workflow may read Jira and write a draft" },
+      { id: "sensitive", label: "Internal data stays in", detail: "Internal comments never reach the client" },
+      { id: "human", label: "A person approves", detail: "Nothing leaves until the PM approves it" }
+    ],
+    init: function () { return { tickets: [], cls: {}, draft: [] }; },
+    beats: beats,
+    render: render
+  });
+})();
+</script>
+</body>
+</html>
