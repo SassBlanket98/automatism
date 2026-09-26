@@ -10,6 +10,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/site.css">
 <link rel="stylesheet" href="../assets/player.css">
+<style>
+.film { margin: 40px auto 0; max-width: 540px; }
+.film video { display: block; width: 100%; aspect-ratio: 4 / 5; border-radius: 16px; background: #E4E5E1; box-shadow: 0 40px 80px -50px rgba(16, 35, 47, 0.6); }
+.film figcaption { margin-top: 12px; font-size: 14px; color: var(--muted); text-align: center; }
+.sub-h { margin: 88px 0 0; font-size: clamp(26px, 3vw, 34px); letter-spacing: -0.02em; }
+</style>
 </head>
 <body>
 <div class="wrap">
@@ -20,6 +26,12 @@
       <p class="lede">Watch the pipeline read an agency's sprint, keep the internal notes back, write the update, catch its own mistake and hand it to a person to approve. This is a scripted replay on made-up data. The tool isn't built yet.</p>
     </section>
 
+    <figure class="film">
+      <video src="../media/client-updates.mp4" poster="../media/client-updates-poster.jpg" autoplay muted loop playsinline controls preload="metadata" aria-label="45 second film: seven Jira tickets become a client update, a guardrail blocks a leaked team note, and the project manager approves it"></video>
+      <figcaption>45 seconds, no sound needed. Scripted demo on made-up data.</figcaption>
+    </figure>
+
+    <h2 class="sub-h">Step through it yourself</h2>
     <div class="player" id="player"></div>
 
     <section class="after">
