@@ -4,14 +4,40 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Automatism: AI workflows for agencies</title>
-<meta name="description" content="Small AI workflows for web and software agencies. Each reads the tools you already use, does one job, follows strict rules and waits for a person to approve. Watch scripted demos; the tools aren't built yet.">
+<meta name="description" content="Small AI workflows for web and software agencies. Each reads the tools you already use, does one job, follows strict rules and waits for a person to approve. Watch a recorded run on made-up data; nothing connects to your tools yet.">
+<link rel="canonical" href="https://automatism.co.za/">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Automatism">
+<meta property="og:title" content="Automatism: AI workflows for agencies">
+<meta property="og:description" content="Small AI workflows for web and software agencies. Each reads the tools you already use, does one job, follows strict rules and waits for a person to approve. Watch a recorded run on made-up data; nothing connects to your tools yet.">
+<meta property="og:url" content="https://automatism.co.za/">
+<meta property="og:image" content="https://automatism.co.za/media/client-updates-poster.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Literata:opsz,wght@7..72,400;7..72,500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
 <style>
-.hero { padding: 72px 0 0; max-width: 1000px; }
-.jobs { margin: 72px 0 0; padding: 0; list-style: none; border-top: 2px solid var(--ink); }
+.hero { padding: 48px 0 56px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr); gap: 24px 48px; align-items: center; }
+.hero h1 { font-size: clamp(38px, 4.7vw, 66px); }
+.hero .lede { max-width: 30em; }
+.band { background: var(--band); color: #f1faf8; }
+.band .brand { color: #fff; }
+.band .top .note { color: #a9d4cf; }
+.band .lede { color: #d6ece8; }
+.lede mark { background: none; color: inherit; text-decoration: underline; text-decoration-color: #ff8fb5; text-decoration-thickness: 3px; text-underline-offset: 4px; }
+.hero .go { margin-top: 28px; font: 700 16px var(--sans); text-decoration: none; border-radius: 10px; min-height: 48px; padding: 0 18px; display: inline-flex; align-items: center; gap: 8px; background: #fff; color: #0a4a47; }
+.hero .go:hover { background: var(--pink-soft); }
+.hero .go svg { width: 14px; height: 14px; }
+.machine { margin: 0; }
+.machine iframe { display: block; width: 100%; aspect-ratio: 5 / 4; border: 0; border-radius: 18px; background: var(--side); box-shadow: 0 18px 40px rgba(0, 0, 0, .22); }
+.machine figcaption { margin-top: 10px; font-size: 14px; color: #a9d4cf; }
+@media (max-width: 900px) {
+  .hero { grid-template-columns: minmax(0, 1fr); padding-top: 40px; }
+  .machine iframe { aspect-ratio: 4 / 3; max-height: 360px; }
+}
+.jobs { margin: 56px 0 0; padding: 0; list-style: none; border-top: 2px solid var(--ink); }
 .job { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.4fr) 190px; gap: 16px 40px; align-items: center; padding: 30px 0; border-bottom: 1px solid var(--line); }
 .job h2 { margin: 0; font-size: clamp(26px, 3vw, 34px); font-weight: 800; letter-spacing: -0.025em; line-height: 1.05; }
 .job .io { margin: 8px 0 0; font-family: var(--serif); font-size: 17px; line-height: 1.5; color: var(--body); }
@@ -19,6 +45,8 @@
 .flow li { display: flex; align-items: center; }
 .flow li + li::before { content: ""; width: 18px; height: 2px; background: var(--line); margin: 0 6px; }
 .flow .g { color: var(--teal); }
+.flow .rev { color: var(--pink-ink); }
+.flow .rev::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--pink); margin-left: 6px; }
 .job .go { justify-self: end; font: 700 16px var(--sans); text-decoration: none; border-radius: 10px; min-height: 48px; padding: 0 18px; display: inline-flex; align-items: center; gap: 8px; background: var(--teal); color: #fff; }
 .job .go:hover { filter: brightness(0.92); }
 .job .go svg { width: 14px; height: 14px; }
@@ -27,9 +55,10 @@
 .rules h2 { margin: 0; font-size: clamp(32px, 3.6vw, 44px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.02; }
 .rules > div > p { font-family: var(--serif); font-size: 18px; line-height: 1.55; color: var(--body); margin: 14px 0 0; }
 .rules ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 40px; }
-.rules li { display: grid; grid-template-columns: 34px 1fr; gap: 4px 14px; }
+.rules li { display: grid; grid-template-columns: 34px 1fr; gap: 4px 14px; align-content: start; }
 .rules .ic { grid-row: 1 / span 2; width: 34px; height: 34px; border-radius: 50%; background: var(--teal-soft); color: var(--teal); display: flex; align-items: center; justify-content: center; }
 .rules .ic svg { width: 18px; height: 18px; }
+.rules .human .ic { background: var(--pink-soft); color: var(--pink-ink); }
 .rules b { font-size: 19px; line-height: 1.25; }
 .rules span.d { font-family: var(--serif); font-size: 16.5px; line-height: 1.5; color: var(--body); }
 .top .note { color: var(--muted); text-align: right; }
@@ -46,34 +75,34 @@
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="top"><a class="brand" href="./">Automatism</a><span class="note">Demos are scripted. The tools aren't built yet.</span></header>
-  <main>
+<div class="band">
+  <div class="wrap">
+    <header class="top"><a class="brand" href="./">Automatism</a><span class="note">Made-up data. Nothing connects to your tools yet.</span></header>
     <section class="hero">
-      <h1>Small AI workflows that fit how your agency already works.</h1>
-      <p class="lede">Each one reads the tools you already use, does one job, follows strict rules and stops for a person to approve. Watch a demo to see the whole run: what goes in, every step in between, and what comes out.</p>
+      <div>
+        <h1>Small AI workflows that fit how your agency already works.</h1>
+        <p class="lede">Each one reads the tools you already use, does one job, follows strict rules and <mark>stops for a person to approve</mark>. Watch a demo to see the whole run: what goes in, every step in between, and what comes out.</p>
+        <a class="go" href="live/">Watch the full run <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg></a>
+      </div>
+      <figure class="machine">
+        <iframe src="live/?embed=hero" title="The client updates workflow replaying a recorded run" loading="eager" tabindex="-1"></iframe>
+        <figcaption>A recording of the client updates workflow: a real model run on a made-up Jira board.</figcaption>
+      </figure>
     </section>
-
+  </div>
+</div>
+<div class="wrap">
+  <main>
     <ul class="jobs">
       <li class="job">
         <div><h2>Client updates</h2><p class="io">Your Jira, Linear or ClickUp board in. A client-ready update out, with internal notes kept back.</p></div>
-        <ol class="flow" aria-label="Steps"><li>Collect</li><li>Clean</li><li>Classify</li><li>Draft</li><li class="g">Guardrails</li><li class="g">Review</li></ol>
+        <ol class="flow" aria-label="Steps"><li>Collect</li><li>Clean</li><li>Classify</li><li>Draft</li><li class="g">Guardrails</li><li class="g rev">Review</li></ol>
         <a class="go" href="client-updates/">Watch the demo <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg></a>
       </li>
       <li class="job">
         <div><h2>Unbilled time</h2><p class="io">A week of commits, tickets and meetings in. The hours nobody logged out, as entries a developer approves.</p></div>
-        <ol class="flow" aria-label="Steps"><li>Collect</li><li>Match</li><li>Find gaps</li><li>Suggest</li><li class="g">Guardrails</li><li class="g">Review</li><li>Log</li></ol>
+        <ol class="flow" aria-label="Steps"><li>Collect</li><li>Match</li><li>Find gaps</li><li>Suggest</li><li class="g">Guardrails</li><li class="g rev">Review</li><li>Log</li></ol>
         <a class="go" href="unbilled-time/">Watch the demo <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9-5.5z"/></svg></a>
-      </li>
-      <li class="job">
-        <div><h2>Release notes</h2><p class="io">Merged work in. Release notes your client can read out, with every line tied to a change.</p></div>
-        <ol class="flow" aria-label="Steps"><li>Collect</li><li>Group</li><li>Draft</li><li class="g">Guardrails</li><li class="g">Review</li></ol>
-        <span class="soon">Demo coming</span>
-      </li>
-      <li class="job">
-        <div><h2>Client requests</h2><p class="io">Client emails and chat in. Tidy tickets out, with anything outside the agreed scope flagged.</p></div>
-        <ol class="flow" aria-label="Steps"><li>Collect</li><li>Extract</li><li>Check scope</li><li>Draft tickets</li><li class="g">Guardrails</li><li class="g">Review</li></ol>
-        <span class="soon">Demo coming</span>
       </li>
     </ul>
 
@@ -86,17 +115,17 @@
         <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span><b>Every output traced to a source</b><span class="d">Each factual line, entry or ticket links to the commit, message or ticket it came from. Anything without a source is blocked.</span></li>
         <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span><b>Only allowed actions</b><span class="d">A workflow can only do the few things it's set up for, like reading a board and writing a draft. Anything else is refused and logged.</span></li>
         <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></span><b>Internal data stays in</b><span class="d">Internal comments, private calendar events and personal details are kept out of anything that leaves your agency.</span></li>
-        <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.8-3.6 3.4-5.5 6.5-5.5 1.6 0 3 .5 4.1 1.4"/><path d="M15 18.5l2 2 4-4.5"/></svg></span><b>A person approves before anything leaves</b><span class="d">Someone who understands the work reads the output and approves it. Nothing reaches a client, a ticket or a timesheet before that.</span></li>
+        <li class="human"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="8" r="3.5"/><path d="M3.5 20c.8-3.6 3.4-5.5 6.5-5.5 1.6 0 3 .5 4.1 1.4"/><path d="M15 18.5l2 2 4-4.5"/></svg></span><b>A person approves before anything leaves</b><span class="d">Someone who understands the work reads the output and approves it. Nothing reaches a client, a ticket or a timesheet before that.</span></li>
       </ul>
     </section>
 
     <section class="close">
       <div>
         <div class="kicker">About these demos</div>
-        <p>The agencies, clients and data are made up, and each demo is a scripted replay that runs the same way every time. They show how the workflows are meant to work. The workflows haven't been built yet.</p>
+        <p>The agencies, clients and data are made up. The two films are scripted and play the same way every time. The machine at the top is a recording of a real model run on a made-up board. Nothing here connects to real tools yet.</p>
       </div>
       <div>
-        <h2>Which of these would save your agency the most time?</h2>
+        <h2>Which of these two would save your agency more time?</h2>
         <p>If you found this through a post, reply there. Tell me how your team handles it today.</p>
       </div>
     </section>

@@ -8,10 +8,10 @@
 .p-sim { font-size: 12.5px; font-weight: 700; color: var(--deep); background: var(--deep-ink); border-radius: 999px; padding: 3px 10px; }
 .p-controls { display: flex; gap: 8px; }
 .p-controls button {
-  font: 600 15px var(--sans); color: #fff; background: var(--deep-on); border: 1px solid #2f4d61;
+  font: 600 15px var(--sans); color: #fff; background: var(--deep-on); border: 1px solid var(--deep-muted);
   border-radius: 8px; min-height: 44px; padding: 0 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
 }
-.p-controls button:hover { background: #28475b; }
+.p-controls button:hover { background: var(--band); }
 .p-controls button:disabled { opacity: 0.45; cursor: default; }
 .p-controls .primary { background: var(--teal); border-color: var(--teal); }
 .p-controls svg { width: 16px; height: 16px; }
@@ -62,7 +62,7 @@
 .rules li[data-s="fail"] { border-color: var(--bad); background: var(--bad-bg); }
 .rules li[data-s="fail"] .dot { background: var(--bad); border-color: var(--bad); color: #fff; }
 .rules li[data-s="flag"] { border-color: var(--flag); background: var(--flag-bg); }
-.rules li[data-s="flag"] .dot { background: var(--flag); border-color: var(--flag); color: #10232f; }
+.rules li[data-s="flag"] .dot { background: var(--flag); border-color: var(--flag); color: var(--ink); }
 .rules li[data-s="wait"] .dot { border-color: var(--teal); border-style: dashed; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -190,3 +190,7 @@ body.record .top, body.record .hero, body.record .after { display: none; }
 body.record .wrap { max-width: none; padding: 40px 60px; }
 body.record .player { margin: 0; }
 body.record .p-body { min-height: 760px; }
+@media (max-width: 360px) {
+  .conveyor { padding-left: 4px; padding-right: 4px; }
+  .conveyor li span { font-size: 9px; letter-spacing: -0.03em; white-space: nowrap; text-align: center; }
+}

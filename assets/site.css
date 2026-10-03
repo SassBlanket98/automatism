@@ -1,18 +1,22 @@
 /* Shared look for the Automatism demo site. Palette from the "Review desk" direction. */
 :root {
-  --ground: #e8eef4;
-  --ink: #10232f;
-  --body: #26394a;
-  --muted: #4d6273;
+  --ground: #eaf3f0;
+  --ink: #0c2a2a;
+  --body: #25403f;
+  --muted: #4a6664;
   --panel: #ffffff;
-  --side: #f4f7fa;
-  --line: #e1e7ed;
-  --deep: #10232f;
-  --deep-ink: #cfdbe4;
-  --deep-muted: #8fa6b6;
-  --deep-on: #1f3a4b;
-  --teal: #0b6e69;
-  --teal-soft: #dff1ef;
+  --side: #f4faf8;
+  --line: #cfe0db;
+  --deep: #0c2a2a;
+  --deep-ink: #d3e8e4;
+  --deep-muted: #8fb3ae;
+  --deep-on: #1c4442;
+  --band: #0a5c58;
+  --teal: #0a6e68;
+  --teal-soft: #d3ebe6;
+  --pink: #e0457b;
+  --pink-ink: #b0285c;
+  --pink-soft: #fde6ee;
   --flag: #f28c38;
   --flag-bg: #fff1e3;
   --ok: #1f7a4d;
@@ -27,6 +31,7 @@ html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--sans); font-size: 17px; line-height: 1.45; }
 a { color: var(--teal); }
 :focus-visible { outline: 3px solid var(--teal); outline-offset: 2px; }
+.band :focus-visible { outline-color: #fff; }
 .wrap { max-width: 1280px; margin: 0 auto; padding: 0 16px; }
 @media (min-width: 720px) { .wrap { padding: 0 40px; } }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
