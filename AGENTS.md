@@ -14,7 +14,7 @@ specific to this repo.
 - Plain HTML/CSS/JS, no framework and no build step. Keep it that way unless David decides otherwise.
 - `live/` is build output of the demo app in `~/Projects/automatism-demo` (hashed Vite assets plus
   `live/recordings/*.json`). Never hand-edit `live/assets/*`; change the app there and rebuild. The
-  copy step from the demo build into `live/` isn't recorded yet: ask, then write it down here.
+  copy recipe is in `~/Projects/automatism-demo/AGENTS.md` ("Updating the site's live/ copy").
 - `live/index.html` points the app at `https://demo.automatism.co.za` (the demo backend).
 - Keep `CNAME` and `.nojekyll`; Pages serves the files as they are.
 
