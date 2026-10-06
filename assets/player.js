@@ -160,7 +160,7 @@
 
     // Keep the analytics action in step with the play/pause toggle.
     function syncPlayAction() {
-      el.play.setAttribute("data-pipeline-action", playing ? "pause" : k >= beats.length - 1 ? "replay" : "play");
+      el.play.setAttribute("data-pipeline-action", playing ? "pause" : k >= beats.length - 1 ? "replay" : k < 0 ? "play" : "resume");
     }
 
     function setPlaying(on) {
