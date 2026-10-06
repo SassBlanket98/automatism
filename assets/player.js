@@ -31,7 +31,7 @@
   function mount(root, cfg) {
     var n = cfg.stages.length;
     var beats = cfg.beats;
-    var k = -1, playing = false, timer = null, lastSaid = null;
+    var k = -1, playing = false, timer = null, lastSaid = null, doneSent = false;
 
     root.innerHTML =
       '<div class="p-bar">' +
@@ -143,6 +143,13 @@
         }
       }
 
+      // Report completion once per pass, however the last beat was reached (play or Step).
+      if (k < 0) doneSent = false;
+      if (k >= beats.length - 1 && !doneSent) {
+        doneSent = true;
+        if (window.automatismTrack) window.automatismTrack("pipeline", { action: "done" });
+      }
+
       el.back.disabled = k < 0;
       el.step.disabled = k >= beats.length - 1;
       var say = k < 0 ? "Ready to run" : k >= beats.length - 1 ? "Run finished" : lastStage ? lastStage.label : null;
@@ -168,7 +175,6 @@
       if (k >= beats.length - 1) {
         setPlaying(false);
         window.__pipelineDone = true;
-        if (window.automatismTrack) window.automatismTrack("pipeline", { action: "done" });
         return;
       }
       var wait = k < 0 ? 300 : (beats[k].dur || 1200);

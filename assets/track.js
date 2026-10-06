@@ -29,9 +29,9 @@ function embed(){try{return new URLSearchParams(L.search).get("embed")==="hero";
 function video(v){if(v.__at)return;v.__at=true;var seen={},played=false,m=[25,50,75,100];
 var film=function(){return v.getAttribute("data-film")||"";};
 var check=function(){var dur=v.duration;if(!dur||!isFinite(dur))return;var pct=v.currentTime/dur*100;
-for(var i=0;i<4;i++)if(pct>=m[i]&&!seen[m[i]]){seen[m[i]]=1;send("video",{film:film(),pct:m[i]});}};
+if(pct>=97)pct=100;for(var i=0;i<4;i++)if(pct>=m[i]&&!seen[m[i]]){seen[m[i]]=1;send("video",{film:film(),pct:m[i]});}};
 v.addEventListener("play",function(){if(played)return;played=true;send("video",{film:film(),pct:0});});
-v.addEventListener("timeupdate",check);v.addEventListener("ended",check);}
+var last=0;v.addEventListener("timeupdate",function(){var dur=v.duration;if(dur&&isFinite(dur)&&v.currentTime<last-1&&last/dur>=0.9&&!seen[100]){seen[100]=1;send("video",{film:film(),pct:100});}last=v.currentTime;check();});v.addEventListener("ended",check);}
 if(!embed()){
 D.addEventListener("click",function(e){try{var t=e.target;if(!t||!t.closest)return;
 var g=t.closest("[data-track]"),tg=g?g.getAttribute("data-track")||"":"";
