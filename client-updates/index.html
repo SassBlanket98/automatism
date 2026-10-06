@@ -25,6 +25,7 @@
 .film figcaption { margin-top: 12px; font-size: 14px; color: var(--muted); text-align: center; }
 .sub-h { margin: 88px 0 0; font-size: clamp(26px, 3vw, 34px); letter-spacing: -0.02em; }
 </style>
+<script defer src="../assets/track.js"></script>
 </head>
 <body>
 <div class="wrap">
@@ -36,7 +37,7 @@
     </section>
 
     <figure class="film">
-      <video src="../media/client-updates.mp4" poster="../media/client-updates-poster.jpg" autoplay muted loop playsinline controls preload="metadata" aria-label="45 second film: seven Jira tickets become a client update, a guardrail blocks a leaked team note, and the project manager approves it"></video>
+      <video data-film="client-updates" src="../media/client-updates.mp4" poster="../media/client-updates-poster.jpg" autoplay muted loop playsinline controls preload="metadata" aria-label="45 second film: seven Jira tickets become a client update, a guardrail blocks a leaked team note, and the project manager approves it"></video>
       <figcaption>45 seconds, no sound needed. Scripted demo on made-up data.</figcaption>
     </figure>
 

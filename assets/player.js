@@ -38,10 +38,10 @@
         '<div class="p-title"><strong>' + esc(cfg.title) + '</strong><span>' + esc(cfg.subtitle) + '</span></div>' +
         '<span class="p-sim">Simulation: scripted run on made-up data</span>' +
         '<div class="p-controls">' +
-          '<button type="button" data-a="back" aria-label="Back one step">' + ICON.back + '</button>' +
-          '<button type="button" data-a="play" class="primary">' + ICON.play + '<span>Play</span></button>' +
-          '<button type="button" data-a="step" aria-label="Forward one step">' + ICON.step + '</button>' +
-          '<button type="button" data-a="replay" aria-label="Replay from the start">' + ICON.replay + '</button>' +
+          '<button type="button" data-a="back" data-pipeline-action="back" aria-label="Back one step">' + ICON.back + '</button>' +
+          '<button type="button" data-a="play" data-pipeline-action="play" class="primary">' + ICON.play + '<span>Play</span></button>' +
+          '<button type="button" data-a="step" data-pipeline-action="step" aria-label="Forward one step">' + ICON.step + '</button>' +
+          '<button type="button" data-a="replay" data-pipeline-action="replay" aria-label="Replay from the start">' + ICON.replay + '</button>' +
         '</div>' +
       '</div>' +
       '<div class="p-progress" aria-hidden="true"><div></div></div>' +
@@ -148,17 +148,29 @@
       var say = k < 0 ? "Ready to run" : k >= beats.length - 1 ? "Run finished" : lastStage ? lastStage.label : null;
       if (say && (announce || say !== lastSaid)) el.live.textContent = say;
       lastSaid = say;
+      syncPlayAction();
+    }
+
+    // Keep the analytics action in step with the play/pause toggle.
+    function syncPlayAction() {
+      el.play.setAttribute("data-pipeline-action", playing ? "pause" : k >= beats.length - 1 ? "replay" : "play");
     }
 
     function setPlaying(on) {
       playing = on;
       clearTimeout(timer);
       el.play.innerHTML = (on ? ICON.pause : ICON.play) + "<span>" + (on ? "Pause" : k >= beats.length - 1 ? "Play again" : k < 0 ? "Play" : "Resume") + "</span>";
+      syncPlayAction();
       if (on) schedule();
     }
 
     function schedule() {
-      if (k >= beats.length - 1) { setPlaying(false); window.__pipelineDone = true; return; }
+      if (k >= beats.length - 1) {
+        setPlaying(false);
+        window.__pipelineDone = true;
+        if (window.automatismTrack) window.automatismTrack("pipeline", { action: "done" });
+        return;
+      }
       var wait = k < 0 ? 300 : (beats[k].dur || 1200);
       timer = setTimeout(function () { k++; paint(false); schedule(); }, wait);
     }
